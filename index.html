@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>今日の故事成語</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Yuji+Syuku&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: indigo slot cabinet (left, reel window with brass frame) + paper result scroll (right); stacks on narrow screens. Single committed look. */
+:root{
+  --cabinet:#1d2748; --cabinet-deep:#121a33; --wave:#26335c;
+  --brass:#d2ab55; --brass-deep:#8f6f2c;
+  --paper:#f7f0dd; --paper-edge:#e6dabb;
+  --ink:#2b2219; --ink-soft:#6b5b45;
+  --shu:#c4402a; --shu-deep:#93301f;
+  --f-brush:"Yuji Syuku","Klee One",serif;
+  --f-word:"Klee One","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-ui:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Meiryo",sans-serif;
+  --row:clamp(64px,12.5vh,150px);
+  color-scheme:light;
+}
+html,body{height:100%; margin:0; overflow:hidden}
+[hidden]{display:none!important}
+body{
+  background-color:var(--cabinet);
+  background-image:
+    radial-gradient(circle at 50% 100%, transparent 18px, var(--wave) 19px, var(--wave) 21px, transparent 22px, transparent 28px, var(--wave) 29px, var(--wave) 31px, transparent 32px),
+    radial-gradient(circle at 0 50%, transparent 18px, var(--wave) 19px, var(--wave) 21px, transparent 22px, transparent 28px, var(--wave) 29px, var(--wave) 31px, transparent 32px);
+  background-size:64px 32px;
+  color:var(--paper);
+  font-family:var(--f-ui);
+}
+.app{
+  height:100%; box-sizing:border-box;
+  display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:clamp(10px,2vh,22px);
+  padding-block:clamp(10px,2.2vh,24px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  max-width:1680px; margin:0 auto;
+}
+header{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+h1{font-family:var(--f-brush); font-weight:400; font-size:clamp(28px,4.4vw,64px); margin:0; letter-spacing:.06em; color:var(--paper); text-wrap:balance}
+h1 span{color:var(--brass)}
+.date{font-size:clamp(18px,2.2vw,32px); font-weight:700; color:var(--brass); letter-spacing:.08em; font-variant-numeric:tabular-nums}
+
+main{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:clamp(14px,2.4vw,36px); align-items:stretch; min-height:0}
+
+/* ---------- slot cabinet ---------- */
+.machine{
+  display:flex; flex-direction:column; gap:clamp(12px,2vh,22px); min-width:0;
+  background:linear-gradient(180deg,var(--cabinet-deep),var(--cabinet));
+  border:3px solid var(--brass-deep); border-radius:22px;
+  padding:clamp(12px,2vw,26px);
+  box-shadow:0 0 0 6px var(--cabinet-deep), 0 18px 40px rgba(0,0,0,.35);
+}
+.window{
+  flex:none; position:relative; height:calc(var(--row) * 3); overflow:hidden;
+  background:var(--paper); border-radius:12px;
+  border:6px solid var(--brass);
+  box-shadow:inset 0 0 0 2px var(--brass-deep), inset 0 10px 24px rgba(43,34,25,.25);
+  container-type:inline-size;
+}
+.window::before,.window::after{
+  content:""; position:absolute; left:0; right:0; height:calc(var(--row) * .9); z-index:3; pointer-events:none;
+}
+.window::before{top:0; background:linear-gradient(var(--paper-edge),rgba(247,240,221,0))}
+.window::after{bottom:0; background:linear-gradient(rgba(247,240,221,0),var(--paper-edge))}
+.payline{
+  position:absolute; left:0; right:0; top:50%; height:var(--row); transform:translateY(-50%); z-index:2; pointer-events:none;
+  border-top:3px solid var(--shu); border-bottom:3px solid var(--shu);
+  background:rgba(196,64,42,.06);
+}
+.payline::before,.payline::after{
+  content:""; position:absolute; top:50%; transform:translateY(-50%);
+  border:clamp(10px,1.6vw,18px) solid transparent;
+}
+.payline::before{left:0; border-left-color:var(--shu)}
+.payline::after{right:0; border-right-color:var(--shu)}
+.row{
+  position:absolute; left:0; right:0; top:50%; height:var(--row); margin-top:calc(var(--row) / -2);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  color:var(--ink); will-change:transform; z-index:1;
+}
+.row .r{font-family:var(--f-ui); font-weight:500; color:var(--ink-soft); font-size:min(calc(var(--row) * .17), calc(90cqi / var(--rlen))); letter-spacing:.06em; white-space:nowrap}
+.row .w{font-family:var(--f-word); font-weight:600; line-height:1.1; font-size:min(calc(var(--row) * .46), calc(84cqi / var(--len))); letter-spacing:.04em; white-space:nowrap}
+.row.hit .w{color:var(--shu-deep)}
+.window.landed .payline{animation:flash .9s ease-out 2}
+@keyframes flash{50%{background:rgba(196,64,42,.22)}}
+
+.controls{display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between}
+.seg{display:inline-flex; background:var(--cabinet-deep); border:2px solid var(--brass-deep); border-radius:999px; padding:4px; gap:4px}
+.seg button{
+  font:700 clamp(14px,1.35vw,20px)/1 var(--f-ui); color:var(--paper); background:transparent; border:0; border-radius:999px;
+  padding:.65em 1.05em; cursor:pointer; letter-spacing:.04em;
+}
+.seg button[aria-pressed="true"]{background:var(--brass); color:var(--cabinet-deep)}
+.seg button:disabled{opacity:.55; cursor:not-allowed}
+.seg-label{font-size:clamp(12px,1vw,15px); color:var(--brass); letter-spacing:.12em; margin-right:6px}
+.opt{display:flex; align-items:center; flex-wrap:wrap; gap:4px}
+
+.big{
+  width:100%; border:0; cursor:pointer; border-radius:18px;
+  font:700 clamp(30px,4.2vw,64px)/1 var(--f-ui); letter-spacing:.2em;
+  padding:.42em .5em .48em; color:#fff;
+  background:var(--shu); box-shadow:0 8px 0 var(--shu-deep), 0 14px 22px rgba(0,0,0,.35);
+  transition:transform .08s, box-shadow .08s, background .2s;
+}
+.big:active{transform:translateY(6px); box-shadow:0 2px 0 var(--shu-deep), 0 6px 12px rgba(0,0,0,.3)}
+.big.stop{background:var(--brass); color:var(--cabinet-deep); box-shadow:0 8px 0 var(--brass-deep), 0 14px 22px rgba(0,0,0,.35)}
+.big:disabled{cursor:default; background:#5a6283; box-shadow:0 8px 0 #3b4161; color:#e6e8f2}
+.hint-key{font-size:clamp(12px,1vw,15px); color:#aeb6d6; text-align:center; margin:-4px 0 0}
+
+/* ---------- result scroll ---------- */
+.result{
+  position:relative; min-width:0;
+  background:var(--paper); color:var(--ink);
+  border-radius:6px; padding:clamp(18px,2.6vw,40px) clamp(18px,2.8vw,44px);
+  box-shadow:0 0 0 8px var(--paper-edge), 0 0 0 11px var(--brass-deep), 0 18px 40px rgba(0,0,0,.35);
+  display:flex; flex-direction:column; gap:clamp(8px,1.4vh,16px);
+}
+.result .lead{font-family:var(--f-word); font-size:clamp(16px,min(2vw,3.4vh),34px); margin:0; color:var(--ink-soft)}
+.result .reading{font-family:var(--f-ui); font-weight:500; font-size:clamp(14px,min(1.7vw,3vh),28px); color:var(--ink-soft); letter-spacing:.12em; margin:0}
+.result .word{font-family:var(--f-word); font-weight:600; font-size:clamp(34px,var(--wfs,5.6vw),92px); line-height:1.15; margin:0; color:var(--ink); text-wrap:balance}
+.headrow{display:flex; align-items:center; gap:clamp(12px,2vw,30px)}
+.headtext{flex:1; min-width:0; display:flex; flex-direction:column; gap:clamp(4px,.8vh,10px)}
+.illust{
+  position:relative; flex:none; width:clamp(90px,min(13vw,23vh),220px); aspect-ratio:1; max-width:38%;
+  border-radius:50%; background:#efe5c9; border:3px solid var(--paper-edge);
+  box-shadow:inset 0 0 0 6px var(--paper), inset 0 0 0 8px var(--brass);
+  display:grid; place-items:center; text-align:center;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size:clamp(28px,var(--efs,3.6vw),62px); line-height:1.1; letter-spacing:-.02em;
+}
+.art-wrap{width:84%; height:84%}
+.art{width:100%;height:100%;display:block;overflow:visible}
+.art *{stroke:var(--ink);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.art .p{fill:#fffaf0}.art .inkf{fill:var(--ink);stroke:none}.art .wht{fill:#fff;stroke:none}
+.art .s{fill:var(--shu)}.art .g{fill:var(--brass)}.art .br{fill:#c08a55}.art .dk{fill:#4a423a}
+.art .w{stroke:#3d7ea6}.art .wf{fill:#a9d0e4}.art .none{stroke:none}.art .ai{fill:#2f4f9a}
+.art .gr{stroke:#4f8a3c}.art .gf{fill:#9cc78a}.art .brs{stroke:#8a5a2b}.art .rs{stroke:var(--shu)}
+.art .tg{fill:#e8a14a}.art .pk{fill:#f3cfb4}.art .jd{fill:#8cc4a6}.art .plum{fill:#b8456b}.art .oni{fill:#d0604c}
+.art .stone{fill:#a39d90}.art .thin{stroke-width:1.6}.art .thick{stroke-width:4.5}
+.art .snake{stroke:#4f8a3c;stroke-width:10}.art .brush{stroke:#8a5a2b;stroke-width:5}
+.art .bamboo{stroke:#5d9a48;stroke-width:4}.art .crack{stroke:#fffaf0;stroke-width:3}
+.art .road{stroke:var(--brass);stroke-width:12}.art .roadc{stroke:#fffaf0;stroke-width:1.6;stroke-dasharray:4 5}
+.art .fox{fill:#f0b56a}
+.art .glow{fill:rgba(210,171,85,.25);stroke:none}
+.art .tx,.art .txs,.art .txw{stroke:none;fill:var(--ink);font-family:"Zen Maru Gothic",sans-serif;font-weight:700;text-anchor:middle}
+.art .txs{fill:var(--shu)}.art .txw{fill:#fffaf0}
+
+.result.reveal .art-wrap{animation:pop .5s cubic-bezier(.2,1.5,.4,1) .2s both}
+@keyframes pop{from{transform:scale(.3); opacity:0}to{transform:none; opacity:1}}
+.label{display:inline-block; font-family:var(--f-ui); font-weight:700; font-size:clamp(14px,1.3vw,20px); color:#fff; background:var(--ink); border-radius:6px; padding:.25em .7em; letter-spacing:.15em; margin-right:.6em; vertical-align:.25em}
+.meaning{font-family:var(--f-word); font-weight:600; font-size:clamp(17px,min(2.1vw,3.8vh),38px); line-height:1.6; margin:0}
+.closing{font-family:var(--f-word); font-weight:600; font-size:clamp(16px,min(1.9vw,3.4vh),34px); line-height:1.55; margin:0; color:var(--shu-deep); border-top:2px dashed var(--paper-edge); padding-top:clamp(8px,1.2vh,14px)}
+.tip{font-family:var(--f-word); font-size:clamp(15px,min(1.6vw,3vh),28px); line-height:1.6; margin:0}
+.tip .label{background:var(--brass-deep)}
+.story{font-family:var(--f-word); font-size:clamp(16px,1.55vw,24px); line-height:1.7; margin:0; background:#efe5c9; border-radius:8px; padding:.7em 1em}
+.tools{display:flex; flex-wrap:wrap; gap:10px; margin-top:auto; padding-top:6px}
+.tool{
+  font:700 clamp(14px,1.25vw,19px)/1 var(--f-ui); cursor:pointer; color:var(--ink);
+  background:transparent; border:2px solid var(--ink); border-radius:999px; padding:.6em 1.1em;
+}
+.tool.video{background:var(--shu); border-color:var(--shu); color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:.45em}
+.tool.video svg{width:1em; height:1em; fill:#fff}
+.tool[aria-pressed="true"]{background:var(--ink); color:var(--paper)}
+.seal{
+  position:absolute; top:-10%; right:-12%;
+  width:clamp(48px,5.4vw,86px); aspect-ratio:1; max-width:100%;
+  border:4px solid var(--shu); border-radius:10px; color:var(--shu);
+  display:grid; place-items:center; transform:rotate(-8deg);
+  font-family:var(--f-brush); font-size:clamp(19px,2.2vw,34px); line-height:1; background:var(--paper); writing-mode:vertical-rl; letter-spacing:.05em;
+  box-shadow:inset 0 0 0 3px var(--paper), inset 0 0 0 5px var(--shu);
+}
+.seal.stamp{animation:stamp .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stamp{0%{transform:rotate(-8deg) scale(2.4); opacity:0}100%{transform:rotate(-8deg) scale(1); opacity:1}}
+.result.reveal .word,.result.reveal .meaning,.result.reveal .closing,.result.reveal .tip{animation:rise .5s ease-out both}
+.result.reveal .meaning{animation-delay:.15s}.result.reveal .closing{animation-delay:.3s}.result.reveal .tip{animation-delay:.45s}
+@keyframes rise{from{opacity:.0; transform:translateY(10px)}to{opacity:1; transform:none}}
+
+.waiting{display:flex; flex-direction:column; gap:14px; justify-content:center; height:100%}
+.waiting p{margin:0; font-family:var(--f-word); font-size:clamp(20px,2.2vw,34px); line-height:1.6}
+.waiting ol{margin:0; padding-left:1.4em; font-family:var(--f-word); font-size:clamp(17px,1.7vw,26px); line-height:1.8; color:var(--ink-soft)}
+
+footer{display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; font-size:clamp(12px,1vw,15px); color:#aeb6d6}
+footer a{color:var(--brass)}
+.mini{font:500 inherit/1 var(--f-ui); font-size:inherit; background:transparent; color:#cfd5ec; border:1px solid #4b5684; border-radius:999px; padding:.45em .9em; cursor:pointer}
+.mini[aria-pressed="false"]{opacity:.6}
+button:focus-visible{outline:3px solid #9fd0ff; outline-offset:3px}
+
+/* ---------- 1画面におさめる（スマホ・タブレット） ---------- */
+main{min-height:0}
+.machine{min-height:0; justify-content:center}
+.result{min-height:0; overflow-y:auto; overscroll-behavior:contain}
+.result .tools{padding-bottom:2px}
+
+/* 縦向き（スマホ・タブレット）：上にスロット、下に結果 */
+@media (max-aspect-ratio:4/5), (max-width:600px){
+  :root{--row:clamp(36px,6.4svh,96px)}
+  .app{gap:10px; padding-block:10px}
+  h1{font-size:clamp(22px,7vw,52px)}
+  .date{font-size:clamp(14px,4vw,28px)}
+  main{grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); gap:clamp(12px,2vh,22px)}
+  .machine{padding:clamp(8px,2vw,18px); gap:clamp(6px,1.2vh,14px); border-radius:16px; box-shadow:0 0 0 4px var(--cabinet-deep)}
+  .window{border-width:4px}
+  .controls{gap:6px; justify-content:center}
+  .seg-label,.hint-key{display:none}
+  .seg button{font-size:clamp(12px,3.2vw,20px); padding:.55em .8em}
+  .big{font-size:clamp(20px,5.6vw,44px); padding:.28em .5em .32em; border-radius:14px; box-shadow:0 5px 0 var(--shu-deep)}
+  .big.stop{box-shadow:0 5px 0 var(--brass-deep)}
+  .big:disabled{box-shadow:0 5px 0 #3b4161}
+  .result{padding:clamp(12px,3vw,30px) clamp(14px,3.6vw,34px); box-shadow:0 0 0 5px var(--paper-edge), 0 0 0 7px var(--brass-deep); gap:clamp(6px,1vh,14px)}
+  .result .lead{font-size:clamp(14px,3.6vw,26px)}
+  .result .reading{font-size:clamp(12px,3.1vw,22px)}
+  .result .word{font-size:clamp(22px,var(--wfm,9vw),80px)}
+  .illust{width:clamp(74px,22vw,190px); box-shadow:inset 0 0 0 4px var(--paper), inset 0 0 0 6px var(--brass)}
+  .seal{border-width:3px; font-size:clamp(14px,3.6vw,28px)}
+  .label{font-size:clamp(11px,2.8vw,18px)}
+  .meaning{font-size:clamp(15px,4.2vw,32px); line-height:1.5}
+  .closing{font-size:clamp(14px,3.8vw,28px); line-height:1.45}
+  .tip{font-size:clamp(13px,3.5vw,24px); line-height:1.5}
+  .story{font-size:clamp(13px,3.4vw,22px)}
+  .tool{font-size:clamp(12px,3.2vw,18px); padding:.55em .95em}
+  .waiting p{font-size:clamp(15px,4.2vw,30px)}
+  .waiting ol{font-size:clamp(13px,3.5vw,24px)}
+  footer{font-size:clamp(10px,2.6vw,14px); align-items:center; flex-wrap:nowrap}
+  .foot-count{display:none}
+  .result .lead{display:none}
+}
+
+/* 横向きで高さが低い画面（スマホ横向きなど） */
+@media (max-height:560px) and (min-aspect-ratio:4/5) and (min-width:601px){
+  :root{--row:clamp(34px,13vh,80px)}
+  .app{gap:6px; padding-block:6px}
+  h1{font-size:clamp(18px,3.2vw,32px)}
+  .date{font-size:clamp(13px,2vw,20px)}
+  main{gap:14px}
+  .machine{padding:8px; gap:6px; border-radius:14px; box-shadow:0 0 0 3px var(--cabinet-deep)}
+  .window{border-width:3px}
+  .seg-label,.hint-key{display:none}
+  .controls{gap:4px; justify-content:center}
+  .seg button{font-size:12px; padding:.45em .7em}
+  .big{font-size:clamp(18px,3.2vw,30px); padding:.22em .5em .28em; border-radius:12px; box-shadow:0 4px 0 var(--shu-deep)}
+  .big.stop{box-shadow:0 4px 0 var(--brass-deep)}
+  .big:disabled{box-shadow:0 4px 0 #3b4161}
+  .result{padding:10px 16px; gap:6px; box-shadow:0 0 0 4px var(--paper-edge), 0 0 0 6px var(--brass-deep)}
+  .result .lead{font-size:13px}
+  .result .reading{font-size:12px}
+  .result .word{font-size:clamp(20px,var(--wfs),44px)}
+  .illust{width:clamp(64px,10vw,110px)}
+  .seal{font-size:14px; border-width:3px}
+  .label{font-size:11px}
+  .meaning{font-size:clamp(14px,1.9vw,20px); line-height:1.45}
+  .closing{font-size:clamp(13px,1.8vw,18px)}
+  .tip{font-size:clamp(12px,1.6vw,16px)}
+  .tool{font-size:12px; padding:.45em .8em}
+  .waiting p{font-size:clamp(14px,2vw,20px)}
+  .waiting ol{font-size:clamp(12px,1.7vw,16px)}
+  footer{font-size:11px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .seal.stamp,.result.reveal *,.window.landed .payline{animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>今日の<span>故事成語</span></h1>
+    <div class="date" id="date"></div>
+  </header>
+
+  <main>
+    <section class="machine" aria-label="故事成語スロット">
+      <div class="window" id="window">
+        <div class="payline"></div>
+      </div>
+
+      <div class="controls">
+        <div class="opt">
+          <span class="seg-label">とめかた</span>
+          <div class="seg" role="group" aria-label="とめかた">
+            <button id="mode-auto" aria-pressed="true">じどうでとまる</button>
+            <button id="mode-manual" aria-pressed="false">ストップでとめる</button>
+          </div>
+        </div>
+        <div class="opt">
+          <span class="seg-label">はやさ</span>
+          <div class="seg" role="group" aria-label="まわるはやさ">
+            <button data-speed="slow" aria-pressed="false">ゆっくり</button>
+            <button data-speed="normal" aria-pressed="true">ふつう</button>
+            <button data-speed="fast" aria-pressed="false">はやい</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="big" id="go">スタート</button>
+      <p class="hint-key">スペースキーでも スタート／ストップ できます</p>
+    </section>
+
+    <section class="result" id="result" aria-live="polite">
+      <div class="waiting" id="waiting">
+        <p>スタートをおすと、故事成語がまわりはじめます。とまったものが「今日の故事成語」です。</p>
+        <ol>
+          <li><b>じどうでとまる</b>：しばらくまわって、じどうでとまります。</li>
+          <li><b>ストップでとめる</b>：ストップボタンをおすと、ゆっくりとまります。</li>
+        </ol>
+      </div>
+      <div id="answer" hidden style="display:contents">
+        <div class="headrow">
+          <div class="headtext">
+            <p class="lead">今日の故事成語は</p>
+            <p class="reading" id="a-reading"></p>
+            <p class="word" id="a-word"></p>
+          </div>
+          <div class="illust" aria-hidden="true"><div class="art-wrap" id="a-illust"></div><div class="seal" id="seal">今日</div></div>
+        </div>
+        <p class="meaning"><span class="label">意味</span><span id="a-meaning"></span></p>
+        <p class="closing">今日一日、これを意識して生活しましょう。</p>
+        <p class="tip"><span class="label">たとえば</span><span id="a-tip"></span></p>
+        <p class="story" id="a-story" hidden></p>
+        <div class="tools">
+          <button class="tool" id="t-story" aria-pressed="false">もとになったお話</button>
+          <span id="a-videos" style="display:contents"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span><span class="foot-count">小・中学生向け　全<span id="count"></span>語　｜　</span>故事成語の動画は <a href="https://kazu3904-dotcom.github.io/koziseigo/" target="_blank" rel="noopener">故事成語なぞとき図鑑</a></span>
+    <span style="display:flex;gap:8px">
+      <button class="mini" id="sound" aria-pressed="true">効果音 オン</button>
+      <button class="mini" id="full">全画面</button>
+    </span>
+  </footer>
+</div>
+
+<script>
+const DATA = [
+ {w:"温故知新",r:"おんこちしん",m:"昔のことをよく学び、そこから新しい考えや知識を見つけること。",h:"前に習ったことをふり返ってから、新しい学習に取り組んでみよう。",s:"孔子の言葉（『論語』）。古いことを学び直して新しいことを知る人は、人の先生になれると言った。"},
+ {w:"臥薪嘗胆",r:"がしんしょうたん",m:"目標をかなえるために、つらいことや苦しいことにたえて努力すること。",h:"苦手なことからにげずに、もう一回チャレンジしてみよう。",s:"呉の王・夫差は薪の上に寝て父のかたきを忘れず、越の王・勾践は苦い肝をなめて負けたくやしさを忘れなかった。"},
+ {w:"五十歩百歩",r:"ごじっぽひゃっぽ",m:"少しのちがいはあっても、中身はほとんど変わらないこと。",h:"人のミスを笑う前に、自分のことも見つめてみよう。",s:"戦いで五十歩にげた兵士が、百歩にげた兵士を笑ったが、にげたことに変わりはない（『孟子』）。"},
+ {w:"漁夫の利",r:"ぎょふのり",m:"二人が争っているすきに、関係のない人が得をしてしまうこと。",h:"あらそわずに、話し合いで解決しよう。",s:"シギとハマグリがはさみ合ってはなれずにいるうちに、通りかかった漁師が両方ともつかまえてしまった。"},
+ {w:"矛盾",r:"むじゅん",m:"話や行動のつじつまが合わないこと。",h:"言っていることと、やっていることが同じになるように気をつけよう。",s:"「どんな盾もつき通す矛」と「どんな矛も防ぐ盾」を売る人が、「その矛でその盾をついたら？」と聞かれて答えられなかった（『韓非子』）。"},
+ {w:"蛇足",r:"だそく",m:"よけいなものを付け加えて、かえってだめにしてしまうこと。",h:"大事なことを、シンプルにわかりやすく伝えてみよう。",s:"蛇の絵を早くかく競争で、一番にかき終えた人が足までかき足してしまい、「蛇に足はない」と負けてしまった。"},
+ {w:"背水の陣",r:"はいすいのじん",m:"にげ道をなくし、もう後がないという覚悟で物事に取り組むこと。",h:"「これだけはやりきる」ことを一つ決めて、全力で取り組もう。",s:"漢の韓信は、わざと川を背にして陣をしき、兵士たちに必死で戦わせて勝った。"},
+ {w:"四面楚歌",r:"しめんそか",m:"まわりが敵ばかりで、味方がだれもいないこと。",h:"ひとりでこまっている友だちがいたら、声をかけて味方になろう。",s:"項羽が敵に囲まれたとき、四方からふるさと・楚の歌が聞こえ、楚の人々まで敵になったと思って悲しんだ。"},
+ {w:"塞翁が馬",r:"さいおうがうま",m:"人生の幸せや不幸は、どう変わるか予想できないということ。",h:"うまくいかないことがあっても、くよくよしすぎずに前を向こう。",s:"とりでの近くに住む老人の馬がにげたが、名馬をつれて帰ってきた。その後も、良いことと悪いことがかわるがわる起こった。"},
+ {w:"推敲",r:"すいこう",m:"文章や詩を何度も読み返し、よりよい言葉に直すこと。",h:"書いた文章を読み返して、もっとよくなるように直してみよう。",s:"詩人の賈島は、「僧は推す月下の門」の「推す」を「敲く」にするか、ロバの上でなやみ続けた。"},
+ {w:"杞憂",r:"きゆう",m:"心配しなくてもよいことを、あれこれ心配すること。",h:"心配なことがあったら、ひとりでなやまず、だれかに話してみよう。",s:"杞の国の人が、天が落ちてこないか、地がくずれないかと心配して、ご飯ものどを通らなかった。"},
+ {w:"他山の石",r:"たざんのいし",m:"他人のよくない言動も、自分をみがく参考になるということ。",h:"友だちのよいところも、よくないところも、自分の学びにしよう。",s:"よその山のそまつな石でも、自分の宝石をみがくのに役立つ（『詩経』）。"},
+ {w:"蛍雪の功",r:"けいせつのこう",m:"苦労して勉強し、その成果があらわれること。",h:"少しの時間も大切にして、学習に取り組もう。",s:"まずしかった車胤は蛍の光で、孫康は雪明かりで本を読み、のちにえらい役人になった。"},
+ {w:"朝三暮四",r:"ちょうさんぼし",m:"目先のちがいにとらわれて、結果が同じであることに気づかないこと。",h:"目の前のことだけでなく、全体をよく考えてから決めよう。",s:"猿に木の実を「朝三つ、夕方四つ」と言うと怒り、「朝四つ、夕方三つ」と言うと喜んだ。"},
+ {w:"呉越同舟",r:"ごえつどうしゅう",m:"仲の悪い者どうしが同じ場所にいること。また、同じ目的のために力を合わせること。",h:"いつもあまり話さない人とも、力を合わせて取り組んでみよう。",s:"仲の悪い呉の人と越の人も、同じ舟に乗って嵐にあえば、助け合う（『孫子』）。"},
+ {w:"画竜点睛",r:"がりょうてんせい",m:"物事を完成させるための、最後の大切な仕上げ。",h:"最後の仕上げまで、ていねいにやりきろう。",s:"絵の名人が、かべにかいた竜にひとみをかき入れると、竜が天へのぼっていった。"},
+ {w:"守株",r:"しゅしゅ",m:"古いやり方にこだわって、工夫しようとしないこと。",h:"いつもと同じやり方だけでなく、新しい工夫をしてみよう。",s:"切り株にぶつかったウサギを手に入れた農民が、またウサギが来ると思って畑仕事をやめ、株を見張り続けた（『韓非子』）。"},
+ {w:"百聞は一見に如かず",r:"ひゃくぶんはいっけんにしかず",m:"何度も人から聞くより、一度自分の目で見るほうがよくわかるということ。",h:"気になったことは、自分の目でたしかめてみよう。",s:"漢の将軍・趙充国が、敵のようすは百回聞くより、一度行って見るのが一番だと言った。"},
+ {w:"虎穴に入らずんば虎子を得ず",r:"こけつにいらずんばこじをえず",m:"危険をおかさなければ、大きな成功は手に入らないということ。",h:"勇気を出して、手をあげて発表してみよう。",s:"漢の班超は、危険をおそれずに敵の陣にせめこみ、大きな手がらを立てた。"},
+ {w:"井の中の蛙",r:"いのなかのかわず",m:"せまい世界にいて、外の広い世界を知らないこと。",h:"自分とちがう考えにも、耳をかたむけてみよう。",s:"井戸の中のカエルは、海の広さを知らない（『荘子』）。"},
+ {w:"登竜門",r:"とうりゅうもん",m:"そこを通りぬければ、大きく成長・出世できるという難しい関門。",h:"目の前の難しい課題を、成長のチャンスだと思って取り組もう。",s:"黄河の急流「竜門」をのぼりきった鯉は、竜になるといわれた。"},
+ {w:"覆水盆に返らず",r:"ふくすいぼんにかえらず",m:"一度してしまったことは、取り返しがつかないということ。",h:"言ってから後悔しないよう、言葉を選んで話そう。",s:"太公望が、はなれていった妻に、こぼした水はもとの盆にはもどらないと言った。"},
+ {w:"大器晩成",r:"たいきばんせい",m:"大人物は、時間をかけてゆっくりと大きく育つということ。",h:"すぐに結果が出なくても、あせらずコツコツ続けよう。",s:"大きな器は、できあがるまでに時間がかかる（『老子』）。"},
+ {w:"完璧",r:"かんぺき",m:"欠けたところがまったくなく、すばらしいこと。",h:"自分の仕事を、最後まで責任をもってやりとげよう。",s:"趙の藺相如は、宝の玉「和氏の璧」を、きず一つつけずに秦から持ち帰った（『史記』）。"},
+ {w:"助長",r:"じょちょう",m:"よけいな手助けをして、かえって悪くしてしまうこと。今では、ある様子をいっそう強めるという意味でも使う。",h:"手伝うときは、相手の気持ちを考えてから手伝おう。",s:"苗を早くのばそうと一本一本引っぱった人がいて、苗はみんなかれてしまった（『孟子』）。"},
+ {w:"断腸の思い",r:"だんちょうのおもい",m:"はらわたがちぎれるほど、とてもつらく悲しい気持ち。",h:"つらそうな友だちがいたら、その気持ちを想像して声をかけよう。",s:"子どもの猿をつれ去られた母猿が、悲しみのあまり死んでしまい、そのはらわたはずたずたにちぎれていた。"},
+ {w:"先んずれば人を制す",r:"さきんずればひとをせいす",m:"人より先に行動すれば、有利な立場に立てるということ。",h:"言われる前に、自分から進んで動いてみよう。",s:"秦の終わりごろ、「先に動けば人をおさえられる」と、兵をあげることがすすめられた（『史記』）。"},
+ {w:"備えあれば憂いなし",r:"そなえあればうれいなし",m:"ふだんから準備をしておけば、いざというときに心配がないということ。",h:"明日の持ち物や宿題の準備を、今日のうちにすませよう。",s:"中国の古い書物『書経』にある言葉から。"},
+ {w:"李下に冠を正さず",r:"りかにかんむりをたださず",m:"人から疑われるような行動は、しないほうがよいということ。",h:"人から誤解されるような行動をしないよう、気をつけよう。",s:"すももの木の下で冠を直そうと手を上げると、実をぬすんでいると疑われてしまう。"},
+ {w:"鶏口牛後",r:"けいこうぎゅうご",m:"大きな集団の後ろについているより、小さな集団でも先頭に立つほうがよいということ。",h:"小さなことでも、リーダーとしてみんなを引っぱってみよう。",s:"戦国時代の蘇秦が、韓の王に「大国の秦に仕えて牛のしりになるより、鶏のくちばしになりなさい」と説いた。"},
+ {w:"出藍の誉れ",r:"しゅつらんのほまれ",m:"弟子が、教えを受けた先生よりもすぐれた人になること。",h:"教わったことを自分なりに工夫して、さらにのばそう。",s:"青い染料は藍という草からとるが、もとの藍よりもっと青い（『荀子』）。"},
+ {w:"切磋琢磨",r:"せっさたくま",m:"仲間どうしではげまし合い、競い合って、おたがいを高めること。",h:"友だちとおたがいのよいところを伝え合い、高め合おう。",s:"骨や角を切ってみがき、玉や石を打ってみがくように、学問や心をみがく（『詩経』）。"},
+ {w:"羊頭狗肉",r:"ようとうくにく",m:"見かけはりっぱだが、中身がともなっていないこと。",h:"見た目だけでなく、中身を大切にしよう。",s:"店先に羊の頭をかかげておきながら、実際には犬の肉を売っていた。"},
+ {w:"疑心暗鬼",r:"ぎしんあんき",m:"一度疑い始めると、何でもないことまで信じられなくなること。",h:"人を疑う前に、まずは相手の話をよく聞こう。",s:"おのをなくした人が、となりの子がぬすんだと疑うと、その子のすることが全部あやしく見えた（『列子』）。"},
+ {w:"水魚の交わり",r:"すいぎょのまじわり",m:"水と魚のように、切っても切れない親しい関係。",h:"友だちへの「ありがとう」を、言葉にして伝えよう。",s:"劉備が、諸葛孔明と自分の関係を「魚に水があるようなものだ」と言った。"},
+ {w:"竹馬の友",r:"ちくばのとも",m:"小さいころから一緒に遊んだ、仲のよい友だち。",h:"昔からの友だちとの時間を、大切にしよう。",s:"晋の桓温が、幼いころ一緒に竹馬で遊んだ殷浩のことを話した言葉から。"},
+ {w:"雨垂れ石を穿つ",r:"あまだれいしをうがつ",m:"小さな力でも、根気よく続ければ大きなことをなしとげられるということ。",h:"小さなことでもよいので、毎日続けられることをやってみよう。",s:"小さな雨だれでも、長い間落ち続ければ石に穴をあける（『漢書』）。"},
+ {w:"千里の道も一歩から",r:"せんりのみちもいっぽから",m:"大きなことも、身近な一歩から始まるということ。",h:"大きな目標に向かって、今日できる一歩をふみ出そう。",s:"『老子』の「千里の行も足下より始まる」という言葉から。"},
+ {w:"過ぎたるは猶及ばざるが如し",r:"すぎたるはなおおよばざるがごとし",m:"やりすぎることは、足りないことと同じくらいよくないということ。",h:"何事も「ちょうどよく」を心がけよう。",s:"孔子が、弟子の子張と子夏を比べて言った言葉（『論語』）。"},
+ {w:"少年老い易く学成り難し",r:"しょうねんおいやすくがくなりがたし",m:"若い時はすぐに過ぎ、学問を身につけるのは難しいので、時間を大切にしようということ。",h:"時間を大切にして、目の前の学習に集中しよう。",s:"宋の朱熹の作と伝えられてきた詩の一節。"},
+ {w:"一を聞いて十を知る",r:"いちをきいてじゅうをしる",m:"一部分を聞いただけで全体がわかるほど、かしこいこと。",h:"教わったことから、「ほかにも使えないかな」と考えてみよう。",s:"孔子の弟子・子貢が、仲間の顔回を「一を聞いて十を知る人」とほめた（『論語』）。"},
+ {w:"良薬は口に苦し",r:"りょうやくはくちににがし",m:"ためになる注意やアドバイスほど、聞くのはつらいということ。",h:"注意されたときは、自分のためだと思って素直に聞こう。",s:"よくきく薬は苦いが病気を治し、まごころのこもった注意は耳に痛いが行いを正す、という言葉から。"},
+ {w:"一寸の虫にも五分の魂",r:"いっすんのむしにもごぶのたましい",m:"小さく弱いものにも、それなりの意地や考えがあるので、ばかにしてはいけないということ。",h:"年下の人や小さな子の気持ちも、大切にしよう。",s:"日本で昔から言われてきたことわざ。一寸（約3cm）しかない小さな虫にも、その半分ほどの魂がある、という意味。"},
+ {w:"虎の威を借るきつね",r:"とらのいをかるきつね",m:"強い人の力をたよりにして、いばること。",h:"人の力にたよっていばらず、自分の力でがんばろう。",s:"虎につかまったきつねが「わたしの後ろについてきてごらん」と言った。動物たちは後ろの虎をこわがってにげたのに、きつねは自分がこわがられたように見せた（『戦国策』）。"},
+ {w:"逆鱗に触れる",r:"げきりんにふれる",m:"目上の人をひどくおこらせてしまうこと。",h:"相手がいやがることを言わないよう、言葉に気をつけよう。",s:"竜のあごの下には一枚だけ逆さに生えたうろこがあり、そこにさわると、おとなしい竜もはげしくおこるという（『韓非子』）。"},
+ {w:"破竹の勢い",r:"はちくのいきおい",m:"止めることができないほど、勢いが強いこと。",h:"一度始めたことは、勢いにのって最後までやりきろう。",s:"竹は、はじめの節に刃を入れると、あとは勢いよく割れていく。晋の将軍・杜預が、軍の勢いをこれにたとえた。"},
+ {w:"一衣帯水",r:"いちいたいすい",m:"一本の帯のようなせまい川や海をへだてて、とても近いこと。",h:"となりのクラスや近所の人とも、なかよく助け合おう。",s:"隋の文帝が、南の陳の国との間を流れる長江を「一本の帯のような川だ」と言った。"},
+ {w:"刎頸の交わり",r:"ふんけいのまじわり",m:"その友のためなら命をかけてもよいと思えるほどの、深い友情。",h:"友だちを信じて、困っているときは力になろう。",s:"趙の将軍・廉頗と藺相如は、一度は仲が悪かったが、のちに命をかけてもよいほどの友になった（『史記』）。"}
+];
+/* ---------- オリジナル線画イラスト（viewBox 120×120） ---------- */
+const c=(x,y,r,k="")=>`<circle cx="${x}" cy="${y}" r="${r}" class="${k}"/>`;
+const p=(d,k="")=>`<path d="${d}" class="${k}"/>`;
+const el=(x,y,rx,ry,k="",rot=0)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" class="${k}"${rot?` transform="rotate(${rot} ${x} ${y})"`:""}/>`;
+const tx=(x,y,s,t,k="tx")=>`<text x="${x}" y="${y}" font-size="${s}" class="${k}">${t}</text>`;
+const sp=(x,y,s,k="")=>p(`M${x} ${y-s}V${y+s}M${x-s} ${y}H${x+s}M${x-s*.6} ${y-s*.6}L${x+s*.6} ${y+s*.6}M${x+s*.6} ${y-s*.6}L${x-s*.6} ${y+s*.6}`,"thin "+k);
+const heart=(x,y,s,k="s")=>`<path transform="translate(${x} ${y}) scale(${s})" vector-effect="non-scaling-stroke" d="M0 8C-11 1 -9 -8 -3 -8C-1 -8 0 -6 0 -5C0 -6 1 -8 3 -8C9 -8 11 1 0 8z" class="${k}"/>`;
+const note=(x,y)=>c(x,y,3.6,"inkf")+p(`M${x+3.4} ${y}V${y-15}q4 2 7 6`);
+const drop=(x,y,s=1)=>p(`M${x} ${y}q${4*s} ${6*s} 0 ${9*s}q${-4*s} ${-3*s} 0 ${-9*s}z`,"wf");
+function face(x,y,r,m="smile"){
+  const ex=r*.38, ey=r*.12;
+  let s=c(x,y,r,"p");
+  if(m==="angry") s+=p(`M${x-ex-3} ${y-ey-5}L${x-ex+3} ${y-ey-2}M${x+ex+3} ${y-ey-5}L${x+ex-3} ${y-ey-2}`,"thin");
+  if(m==="sad"||m==="worry") s+=p(`M${x-ex-3} ${y-ey-2}L${x-ex+3} ${y-ey-5}M${x+ex+3} ${y-ey-2}L${x+ex-3} ${y-ey-5}`,"thin");
+  if(m==="grit") s+=p(`M${x-ex-2} ${y-ey-2}l3 2l-3 2M${x+ex+2} ${y-ey-2}l-3 2l3 2`,"thin");
+  else s+=c(x-ex,y-ey+1,Math.max(1.4,r*.13),"inkf")+c(x+ex,y-ey+1,Math.max(1.4,r*.13),"inkf");
+  const my=y+r*.42, mw=r*.36;
+  if(m==="smile") s+=p(`M${x-mw} ${my-2}Q${x} ${my+5} ${x+mw} ${my-2}`,"thin");
+  else if(m==="sad") s+=p(`M${x-mw} ${my+2}Q${x} ${my-4} ${x+mw} ${my+2}`,"thin");
+  else if(m==="worry") s+=p(`M${x-mw} ${my}q${mw/2} -3 ${mw} 0t${mw} 0`,"thin");
+  else if(m==="grit") s+=p(`M${x-mw} ${my-2}h${mw*2}v4h${-mw*2}zM${x} ${my-2}v4`,"thin");
+  else s+=p(`M${x-mw*.6} ${my}H${x+mw*.6}`,"thin");
+  return s;
+}
+function person(x,y,s=1,m="smile",arms="down"){
+  const r=8*s, b=y+r, h=b+22*s;
+  const a = arms==="up" ? `M${x} ${b+6*s}L${x-11*s} ${b-6*s}M${x} ${b+6*s}L${x+11*s} ${b-6*s}`
+          : `M${x} ${b+6*s}L${x-10*s} ${b+16*s}M${x} ${b+6*s}L${x+10*s} ${b+16*s}`;
+  return p(`M${x} ${b}V${h}${a}M${x} ${h}L${x-8*s} ${h+16*s}M${x} ${h}L${x+8*s} ${h+16*s}`)+face(x,y,r,m);
+}
+function runner(x,y,m="smile",dir=1){
+  const d=dir;
+  return p(`M${x} ${y+8}L${x-4*d} ${y+28}M${x-1*d} ${y+14}L${x+11*d} ${y+20}M${x-1*d} ${y+14}L${x-12*d} ${y+11}M${x-4*d} ${y+28}L${x+7*d} ${y+40}M${x-4*d} ${y+28}L${x-17*d} ${y+35}`)
+        +p(`M${x-16*d} ${y+4}h-${8*d}M${x-18*d} ${y+20}h-${8*d}`,"thin")+face(x,y,8,m);
+}
+function monkey(x,y,r,m){
+  return c(x-r*.95,y-r*.1,r*.38,"br")+c(x+r*.95,y-r*.1,r*.38,"br")+c(x,y,r,"br")
+        +el(x,y+r*.18,r*.72,r*.66,"pk")
+        +c(x-r*.28,y,r*.09,"inkf")+c(x+r*.28,y,r*.09,"inkf")
+        +(m==="sad"?p(`M${x-r*.3} ${y+r*.5}q${r*.3} -${r*.22} ${r*.6} 0`,"thin"):p(`M${x-r*.3} ${y+r*.38}q${r*.3} ${r*.3} ${r*.6} 0`,"thin"));
+}
+const nut=(x,y)=>el(x,y+1,3.6,4.4,"br")+p(`M${x-4} ${y-2}h8`,"thin");
+
+const VIDEOS = {
+ // 動画を追加するときは、ここに「"語": ["YouTubeのID"]」を足すだけです
+ "蛍雪の功":["4I7ok19p_9Y"], "登竜門":["tZpZhtMeIw4"], "背水の陣":["ji7m5msjPFo"], "守株":["njAtcKcUfw8"],
+ "画竜点睛":["JfayFnhU8FU"], "五十歩百歩":["dzqt4E-_KOo"], "推敲":["zfuDy9MmGsY"], "杞憂":["i6Fn3mknX3Q"],
+ "矛盾":["SfCAs-tYFwY"], "朝三暮四":["zIUSCzBUpEA"], "塞翁が馬":["cc_kmg7qK18"], "一寸の虫にも五分の魂":["l6y70BQJUyI"],
+ "蛇足":["E90YP7V1uJk"], "虎の威を借るきつね":["2bDuLfdZZYI"], "漁夫の利":["gI0lL1hfMe0"], "臥薪嘗胆":["eKljvBgN2lw"],
+ "呉越同舟":["jblnKyl0oSM","2B8sYNMoEHc"], "覆水盆に返らず":["fbLPmi4IUvQ"], "四面楚歌":["OxhFoUG0mrI"], "逆鱗に触れる":["VkSF8vt49jQ"],
+ "鶏口牛後":["XvZEr3--4Kk"], "羊頭狗肉":["ycYYp6GYeOc"], "温故知新":["uImVqkMyQL8"], "破竹の勢い":["Rtrh8HYJYgM"],
+ "一衣帯水":["i3V6qTgDmoA"], "虎穴に入らずんば虎子を得ず":["l5_CZEwKiyY"], "他山の石":["fHBBfJLR20k"], "疑心暗鬼":["hXN0LPwqoP8"], "刎頸の交わり":["Q7pL74RLetM"]
+};
+const ART = {
+"温故知新":
+  el(22,62,4,21,"p")+p("M22 41h32v42H22z","p")+el(54,62,4,21,"p")
+  +p("M28 51h20M28 58h20M28 65h20M28 72h14","thin")
+  +p("M62 62h10m-4 -4l4 4l-4 4")
+  +c(90,55,13,"g")+p("M84 70h12v6H84zM86 80h8")+p("M90 34v-7M76 41l-5 -5M104 41l5 -5M108 55h6M66 55h6","thin"),
+"臥薪嘗胆":
+  p("M22 84h76M20 91h80M24 98h72","brs thick")+p("M40 80v22M80 80v22","thin")
+  +p("M40 73H84l12 -4M84 73l12 5M56 73l-6 -9")+face(31,70,9,"grit")
+  +p("M80 22v12","thin")+el(80,42,6,8,"gf")+tx(100,46,9,"にがい"),
+"五十歩百歩":
+  runner(80,36,"worry",-1)+runner(38,36,"smile",-1)
+  +tx(36,98,12,"50歩")+tx(84,98,12,"100歩"),
+"漁夫の利":
+  p("M28 88q14 -16 28 0z","p")+p("M28 88q14 12 28 0z","p")
+  +el(30,62,12,8,"p")+c(42,54,5.5,"p")+c(43,53,1.3,"inkf")+p("M46 57L44 86","thick")+p("M26 70l-3 11M33 70l1 11","thin")
+  +person(86,40,1,"smile")+p("M96 62L106 28")+p("M106 28q-16 6 -20 26","thin"),
+"矛盾":
+  p("M58 30h32v30q0 22 -16 30q-16 -8 -16 -30z","p")+c(74,54,6,"g")
+  +p("M12 108L46 74","thick brs")+p("M46 74L49 63L60 60L57 71z","g")
+  +tx(98,104,22,"？","txs"),
+"蛇足":
+  p("M18 76q14 -28 32 -8t30 -6t18 -14","snake")
+  +el(98,46,9,7,"gf")+c(101,43,1.6,"inkf")+p("M107 48l7 -2m-7 2l7 3","rs")
+  +p("M32 64l-2 12m0 0l-4 2m4 -2l3 2M54 72v12m0 0l-4 2m4 -2l3 2M72 70l2 12m0 0l-3 3m3 -3l4 1M88 60l4 10m0 0l-3 3m3 -3l4 0","rs"),
+"背水の陣":
+  p("M20 28h80v22H20z","wf none")+p("M20 34q7 -5 14 0t14 0t14 0t14 0t14 0t10 0M20 44q7 -5 14 0t14 0t14 0t14 0t14 0t10 0","w")
+  +person(44,62,.9,"angry")+person(72,62,.9,"angry")
+  +p("M32 104L34 58M84 104L86 58","brs")+p("M98 102V56","brs")+p("M98 56h14v12H98z","s"),
+"四面楚歌":
+  person(60,52,1,"sad")+note(24,42)+note(92,36)+note(22,88)+note(94,86)+note(58,22),
+"塞翁が馬":
+  el(80,68,17,10,"p")+p("M93 62L100 44M97 70L108 50","")+el(105,44,9,5,"p",30)+p("M100 38l1 -7l4 5","thin")+c(106,43,1.3,"inkf")
+  +p("M94 56l3 -6M97 52l3 -6","thin")+p("M68 76v20M76 77v20M87 76v20M94 74v20")+p("M63 64q-9 5 -6 18")
+  +person(30,48,1,"smile")+p("M25 53q5 11 10 0","p")+p("M42 70v34","brs"),
+"推敲":
+  p("M30 18a13 13 0 1 0 12 22a10 10 0 1 1 -12 -22z","g")
+  +p("M52 42h54l-7 -9H59z","p")+p("M58 42v60M100 42v60")+p("M62 48h17v54H62zM81 48h15v54H81z","thin")+c(77,76,1.4,"inkf")+c(84,76,1.4,"inkf")
+  +p("M14 100L40 76","thick")+c(44,72,7,"p")+p("M54 62l4 -3M55 72h5M54 82l4 3","thin")+tx(28,64,10,"コン"),
+"杞憂":
+  p("M22 44q0 -12 12 -10q4 -12 18 -8q10 -8 22 2q14 -2 14 12q0 8 -10 8H32q-10 0 -10 -4z","p")
+  +p("M56 26l-5 9l6 4l-5 9","rs")
+  +p("M36 58v10m-4 -4l4 4l4 -4M84 58v10m-4 -4l4 4l4 -4","thin")
+  +person(60,76,.7,"worry")+drop(71,68),
+"他山の石":
+  p("M14 96L38 52l12 16l10 -10l20 38z","p")+p("M26 102l6 -10l12 -2l6 8l-4 8l-14 2z","dk")
+  +p("M54 96q12 6 22 -6","thin")+p("M60 88l4 0l-2 -4","thin")
+  +p("M76 70l8 -10h14l8 10l-15 20z","g")+p("M76 70h30M86 60l5 30M96 60l-5 30","thin")+sp(104,48,5,"rs"),
+"蛍雪の功":
+  p("M60 96q-18 -8 -36 0V70q18 -8 36 0q18 -8 36 0v26q-18 -8 -36 0zM60 70v26","p")
+  +p("M30 78h22M30 84h22M68 78h22M68 84h22","thin")
+  +c(30,42,7,"glow")+c(30,42,2.6,"g")+c(48,30,7,"glow")+c(48,30,2.6,"g")+c(44,54,6,"glow")+c(44,54,2.2,"g")
+  +sp(80,34,6,"w")+sp(96,50,5,"w")+sp(78,56,4,"w"),
+"朝三暮四":
+  monkey(60,40,15,"smile")
+  +c(26,72,6,"g")+p("M26 60v-3M14 72h-3M38 72h3M18 64l-2 -2M34 64l2 -2","thin")+nut(24,90)+nut(34,90)+nut(29,99)
+  +p("M96 64a9 9 0 1 0 4 15a7 7 0 1 1 -4 -15z","g")+nut(78,88)+nut(88,88)+nut(78,98)+nut(88,98)
+  +tx(46,92,13,"3","txs")+tx(102,98,13,"4","txs"),
+"呉越同舟":
+  person(44,40,.9,"angry")+person(76,40,.9,"angry")
+  +p("M18 74h84l-12 20H30z","br")+p("M14 104q8 -5 16 0t16 0t16 0t16 0t16 0t16 0","w")
+  +p("M28 26l5 5m0 -5l-5 5M92 26l-5 5m0 -5l5 5","rs"),
+"画竜点睛":
+  p("M76 36l10 -16M88 42l16 -10","brs thick")
+  +p("M24 64q0 -18 20 -24l24 -4q20 0 26 14q4 16 -8 24l-22 6q-16 2 -24 -4z","gf")
+  +p("M24 64q16 6 30 0","")+c(30,58,1.4,"inkf")+p("M30 56q-12 -10 -18 -2M30 70q-10 8 -12 18","thin")
+  +c(62,50,6,"p")+c(62,50,2.6,"s")+sp(70,40,4,"rs")
+  +p("M70 58L102 92","brush")+p("M66 53l7 1l-2 6z","dk"),
+"守株":
+  p("M38 72v22q16 6 32 0V72","br")+el(54,72,16,5,"p")+p("M47 72q7 -3 14 0","thin")
+  +el(88,92,12,7,"p")+c(78,86,6,"p")+p("M76 80l-5 -12q4 -1 7 10M80 80l3 -12q4 2 0 11","p")+p("M75 86l2 2","thin")+sp(70,74,4,"rs")
+  +person(22,50,.8,"smile"),
+"百聞は一見に如かず":
+  [24,48,72].map(y=>p(`M30 ${y+8}q0 -12 9 -12q9 0 9 10q0 6 -5 8q-3 2 -3 6q0 5 -5 5`,"p")).join("")
+  +tx(28,104,11,"100回")+p("M54 60h6","thin")
+  +p("M62 60q20 -24 44 0q-20 24 -44 0z","p")+c(84,60,9,"ai")+c(84,60,3.4,"inkf")+c(87,57,1.4,"wht")+tx(86,96,11,"1回"),
+"虎穴に入らずんば虎子を得ず":
+  p("M14 100q0 -68 46 -68q46 0 46 68z","dk")
+  +c(46,62,6,"tg")+c(74,62,6,"tg")+c(60,76,17,"tg")
+  +p("M60 60v7M51 62l2 6M69 62l-2 6M44 74h5M71 74h5","thin")
+  +c(54,73,1.8,"inkf")+c(66,73,1.8,"inkf")+p("M57 81l3 3l3 -3M60 84v3","thin")+p("M44 84l-10 2M76 84l10 2","thin"),
+"井の中の蛙":
+  c(60,22,9,"wf")+p("M30 60h60v40H30z","p")
+  +p("M30 72h60M30 86h60M50 60v12M70 60v12M40 72v14M60 72v14M80 72v14M50 86v14M70 86v14","thin")
+  +p("M26 56h68v6H26z","br")
+  +c(52,44,5,"gf")+c(68,44,5,"gf")+el(60,52,13,8,"gf")+c(52,43,1.8,"inkf")+c(68,43,1.8,"inkf")+p("M54 54q6 4 12 0","thin"),
+"登竜門":
+  p("M28 20h64v86H28z","wf none")+p("M38 20v86M50 20v86M62 20v86M74 20v86M86 20v86","w thin")
+  +p("M24 20v88M96 20v88","brs thick")
+  +`<g transform="translate(60 62) rotate(-70)">${p("M-14 0q12 -10 26 0q-14 10 -26 0z","s")+p("M-14 0l-9 -7v14z","s")+c(6,-1,1.5,"inkf")}</g>`
+  +p("M30 104q6 -8 12 0q6 -8 12 0q6 -8 12 0q6 -8 12 0q6 -8 12 0","w")+sp(60,30,5,"rs"),
+"覆水盆に返らず":
+  p("M22 52L72 38l2 7L24 59z","br")+c(20,60,6,"p")
+  +p("M74 44q10 10 6 24","w")+drop(82,72)+drop(74,82)+el(78,98,24,6,"wf")
+  +tx(98,52,20,"！","txs"),
+"大器晩成":
+  p("M44 30h28l-4 8q22 10 22 36q0 24 -32 26q-32 -2 -32 -26q0 -26 22 -36z","p")
+  +p("M32 66h56M30 78h60","brs")+p("M46 30q12 4 24 0","thin")
+  +c(96,30,11,"p")+p("M96 30v-7M96 30l5 3","thin"),
+"完璧":
+  c(60,54,28,"jd")+c(60,54,10,"p")
+  +[0,60,120,180,240,300].map(a=>{const r=19,x=60+r*Math.cos(a*Math.PI/180),y=54+r*Math.sin(a*Math.PI/180);return c(x.toFixed(1),y.toFixed(1),1.8,"inkf")}).join("")
+  +sp(24,28,6,"rs")+sp(98,26,5,"rs")+p("M28 98q16 -12 32 -6q16 -6 32 6","p"),
+"助長":
+  p("M14 92h92","brs")
+  +["26","44"].map(x=>p(`M${x} 92v-16`,"gr")+p(`M${x} 80q-9 -3 -10 -11q7 0 10 7M${x} 82q9 -3 10 -11q-7 0 -10 7`,"gf")).join("")
+  +p("M78 78V58","gr")+p("M78 64q-9 2 -11 11M78 64q9 2 11 11","gf")+p("M78 78l-4 9M78 78l3 9M78 78v10","brs thin")
+  +c(78,50,7,"p")+p("M84 46L104 28")+p("M64 42l-4 -4M92 56l4 2","thin"),
+"断腸の思い":
+  monkey(42,52,17,"sad")+drop(34,58)
+  +heart(86,66,2.6,"s")+p("M86 50l-4 8l6 6l-4 9","crack"),
+"先んずれば人を制す":
+  p("M100 38v64","brs")+p("M88 56q6 6 12 2","rs thick")
+  +runner(78,36,"smile",1)+runner(36,46,"worry",1)+tx(78,100,12,"1","txs"),
+"備えあれば憂いなし":
+  p("M30 20l-3 6M50 16l-3 6M72 18l-3 6M92 22l-3 6","w")
+  +p("M22 54q38 -42 76 0z","s")+p("M22 54q9 -6 19 0q9 -6 19 0q9 -6 19 0q9 -6 19 0","thin")
+  +p("M60 54v40q0 6 6 6")
+  +p("M30 66h24v30H30z","br")+p("M30 66q12 -5 24 0v12H30z","s")+face(84,80,10,"smile"),
+"李下に冠を正さず":
+  p("M14 32q30 6 50 -4q22 8 46 2","brs thick")
+  +el(30,26,6,3,"gf",-20)+el(76,24,6,3,"gf",20)+el(96,30,6,3,"gf",-10)
+  +c(40,40,5,"plum")+c(64,36,5,"plum")+c(86,42,5,"plum")
+  +person(60,68,.9,"neutral","up")+p("M53 61l2 -9l5 5l5 -5l2 9z","g")
+  +tx(98,86,18,"？","txs")+tx(22,88,16,"？","txs"),
+"鶏口牛後":
+  p("M68 40q-6 -8 -2 -14M96 40q6 -8 2 -14","brs")+el(64,48,6,3,"p")+el(100,48,6,3,"p")
+  +p("M70 38h24q4 22 -2 38q-10 8 -20 0q-6 -16 -2 -38z","p")+el(82,74,12,7,"pk")+c(78,74,1.5,"inkf")+c(86,74,1.5,"inkf")
+  +c(76,52,1.8,"inkf")+c(88,52,1.8,"inkf")+p("M86 40q6 4 2 10","thin")
+  +p("M30 46q2 -10 6 -4q2 -10 6 -2q4 -8 6 2z","s")+c(38,58,13,"p")+p("M25 56l-10 4l10 3z","g")+p("M29 66q-2 8 4 8q2 -4 0 -8","s")+c(34,55,1.6,"inkf")
+  +p("M33 40l3 -6l3 4l3 -4l3 6z","g"),
+"出藍の誉れ":
+  p("M30 98V56","gr")+p("M30 82q-14 -2 -16 -12q12 0 16 12M30 72q14 -2 16 -12q-12 0 -16 12M30 62q-10 -4 -10 -14q8 2 10 14","gf")
+  +p("M48 72h14m-5 -5l5 5l-5 5")
+  +p("M70 44h30v44q-8 -4 -15 0q-7 4 -15 0z","ai")+sp(104,36,6,"rs"),
+"切磋琢磨":
+  person(32,46,.95,"smile","up")+person(88,46,.95,"smile","up")
+  +p("M48 32q12 -12 24 0","")+p("M68 27l4 5l-6 1","thin")+p("M72 44q-12 12 -24 0","")+p("M52 49l-4 -5l6 -1","thin")
+  +p("M50 80l6 -8h8l6 8l-10 14z","g")+sp(60,62,4,"rs"),
+"羊頭狗肉":
+  p("M16 40h88l-8 -12H24z","s")+p("M22 40v8M98 40v8","thin")
+  +p("M30 46h30v26H30z","p")+c(40,55,3.6,"p")+c(45,52,3.6,"p")+c(50,55,3.6,"p")+c(45,61,6,"p")+c(43,60,1.2,"inkf")+c(47,60,1.2,"inkf")
+  +el(70,74,4,8,"dk",20)+el(90,74,4,8,"dk",-20)+c(80,74,10,"tg")+c(76,72,1.6,"inkf")+c(84,72,1.6,"inkf")+c(80,77,2,"inkf")
+  +p("M22 82h76v20H22z","br")+tx(46,96,9,"ひつじ","txw"),
+"疑心暗鬼":
+  p("M62 26q16 -10 34 0q18 8 12 36q-4 30 -26 32q-22 -2 -24 -30q-2 -26 4 -38z","dk")
+  +p("M72 42l-5 -12l9 7M92 42l5 -12l-9 7","g")+c(82,56,15,"oni")
+  +c(76,53,3,"wht")+c(88,53,3,"wht")+c(76,53,1.2,"inkf")+c(88,53,1.2,"inkf")+p("M74 64h16M77 64l2 4l2 -4M83 64l2 4l2 -4","thin")
+  +face(34,64,14,"worry")+tx(30,40,16,"？","txs"),
+"水魚の交わり":
+  c(60,60,40,"wf none")+p("M24 38q9 -5 18 0t18 0t18 0t18 0","w")
+  +p("M36 66q20 -18 44 0q-24 18 -44 0z","g")+p("M80 66l14 -10v20z","g")+c(46,63,2,"inkf")+p("M60 56q4 10 0 20","thin")
+  +c(34,50,3,"")+c(28,42,2,"")+heart(88,40,1.3,"s"),
+"竹馬の友":
+  [40,80].map(x=>p(`M${x-7} 30V106M${x+7} 30V106`,"bamboo")+p(`M${x-7} 50h0M${x+7} 70h0M${x-7} 90h0`,"thin")+p(`M${x-7} 86h-7M${x+7} 86h7`,"brs")+person(x,44,.85,"smile")).join(""),
+"雨垂れ石を穿つ":
+  p("M18 22h84l-6 8H24z","br")+drop(60,36)+drop(60,52)+drop(60,66,.8)
+  +p("M26 102q-2 -18 18 -22h32q20 4 18 22z","stone")+el(60,82,6,2.6,"dk")+p("M48 76l-4 -3M72 76l4 -3","w thin"),
+"千里の道も一歩から":
+  p("M60 16l18 26H42z","p")+p("M54 26l6 -4l6 4","thin")
+  +p("M48 108q-14 -20 16 -32t-6 -24l4 -8","road")+p("M48 108q-14 -20 16 -32t-6 -24l4 -8","roadc")
+  +el(80,98,3.6,6,"dk",15)+el(90,88,3.6,6,"dk",15),
+"過ぎたるは猶及ばざるが如し":
+  p("M16 42h24v20H16z","g")+p("M40 56l16 -10")+p("M16 46q-8 6 0 14")
+  +p("M58 46q4 12 10 22M54 48q2 12 8 22M62 46q8 10 12 20","w")
+  +p("M60 86h34l-4 20H64z","br")+el(77,86,17,3.4,"wf")+p("M62 88q-4 6 -2 12M92 88q4 6 2 12","w")
+  +p("M82 86q2 -14 -6 -20","gr")+c(72,66,5,"s")+p("M66 62l-2 -3M72 60v-3","thin"),
+"少年老い易く学成り難し":
+  p("M44 20h32M44 100h32","thick brs")+p("M48 20q0 22 12 40q-12 18 -12 40M72 20q0 22 -12 40q12 18 12 40")
+  +p("M52 30h16q-2 10 -8 18q-6 -8 -8 -18z","g")+p("M60 60v24","g thin")+p("M50 98q10 -14 20 0z","g")
+  +p("M84 72l18 -4v24l-18 4z","ai")+p("M84 72v24","thin"),
+"一を聞いて十を知る":
+  p("M24 54q0 -22 18 -22q18 0 18 20q0 12 -10 16q-6 3 -6 12q0 10 -10 10q-8 0 -10 -8","p")+p("M34 52q0 -8 8 -8q8 0 8 8","thin")
+  +tx(18,36,15,"1","txs")+p("M64 60h8m-4 -4l4 4l-4 4")
+  +c(92,56,16,"g")+p("M86 72h12v8H86z")+tx(92,61,13,"10")+p("M92 32v-6M76 40l-4 -4M108 40l4 -4","thin"),
+"一寸の虫にも五分の魂":
+  el(60,74,22,18,"s")+p("M60 56v36","")+c(50,68,3.4,"inkf")+c(70,68,3.4,"inkf")+c(52,82,3,"inkf")+c(68,82,3,"inkf")
+  +el(60,54,10,7,"dk")+p("M54 48l-6 -10M66 48l6 -10","thin")+c(57,53,1.4,"wht")+c(63,53,1.4,"wht")
+  +p("M38 70l-8 -4M38 80h-9M82 70l8 -4M82 80h9","thin")+heart(60,28,1.2,"s")+sp(80,26,4,"rs")+tx(28,104,10,"一寸"),
+"虎の威を借るきつね":
+  c(68,32,5,"tg")+c(98,32,5,"tg")+c(83,46,17,"tg")+p("M83 30v6M75 32l2 5M91 32l-2 5","thin")
+  +c(77,44,1.8,"inkf")+c(89,44,1.8,"inkf")+p("M79 53l4 3l4 -3","thin")
+  +p("M24 50l8 -16l8 12h12l8 -12l8 16q0 20 -22 30q-22 -10 -22 -30z","fox")+c(36,56,1.8,"inkf")+c(56,56,1.8,"inkf")+c(46,74,2.4,"inkf")
+  +p("M38 66q8 6 16 0","thin")+tx(86,90,11,"えっへん","txs"),
+"逆鱗に触れる":
+  p("M76 36l10 -16M88 42l16 -10","brs thick")
+  +p("M24 60q0 -18 20 -24l24 -4q20 0 26 14q4 16 -8 24l-22 6q-16 2 -24 -4z","gf")
+  +p("M24 60q16 6 30 0")+c(30,54,1.4,"inkf")+p("M56 42l12 4","thin")+c(62,50,5,"p")+c(63,51,2.2,"s")
+  +p("M58 78l6 -4l2 7z","s")+p("M70 104L64 86","thick")+c(72,104,7,"p")
+  +p("M96 20l4 6M104 26l6 2M100 14l2 -6","rs"),
+"破竹の勢い":
+  p("M52 108V54M68 108V54","bamboo")+p("M52 72h16M52 92h16","bamboo thin")
+  +p("M52 54L36 20M68 54L84 20","bamboo")+p("M60 50L60 34","")
+  +p("M52 32l16 0l-4 -14h-8z","g")+p("M60 18v-6","brs thick")
+  +p("M28 40l-8 -4M26 54h-9M92 40l8 -4M94 54h9","thin"),
+"一衣帯水":
+  p("M14 58q20 -6 40 0t52 -2","w")+p("M14 70q20 -6 40 0t52 -2","w")+p("M14 58q20 -6 40 0t52 -2V70q-32 4 -52 -2t-40 2z","wf none")
+  +p("M20 50l12 -10l12 10v12H20z","p")+p("M20 50h24","thin")
+  +p("M76 98l12 -10l12 10v12H76z","p")
+  +person(60,24,.6,"smile","up")+person(56,80,.6,"smile","up"),
+"刎頸の交わり":
+  person(36,44,1,"smile")+person(84,44,1,"smile")+p("M46 66L60 70L74 66","")
+  +heart(60,40,1.6,"s")+sp(60,18,5,"rs"),
+"良薬は口に苦し":
+  p("M18 56h24l-3 30H21z","p")+p("M20 64h20l-1 12H21z","gf")+p("M24 50q-3 -5 0 -10M34 50q-3 -5 0 -10","thin")
+  +face(66,58,14,"grit")+tx(66,92,10,"にがい")+sp(98,38,6,"rs")+heart(98,66,1.4,"s")
+};
+const N = DATA.length;
+const $ = id => document.getElementById(id);
+$("count").textContent = N;
+
+const now = new Date();
+$("date").textContent = `${now.getMonth()+1}月${now.getDate()}日（${"日月火水木金土"[now.getDay()]}）`;
+
+/* ---------- reel ---------- */
+const win = $("window");
+const rows = [];
+for (let i=-2;i<=2;i++){
+  const el = document.createElement("div");
+  el.className = "row";
+  el.innerHTML = '<span class="r"></span><span class="w"></span>';
+  win.appendChild(el);
+  rows.push({i, el, idx:-1});
+}
+const mod = n => ((n % N) + N) % N;
+let rowH = 100;
+function measure(){ rowH = win.clientHeight / 3; }
+let pos = Math.floor(Math.random()*N), lastBase = null;
+function fill(row, idx){
+  if (row.idx === idx) return;
+  row.idx = idx;
+  const d = DATA[idx];
+  row.el.querySelector(".w").textContent = d.w;
+  row.el.querySelector(".r").textContent = d.r;
+  row.el.style.setProperty("--len", Math.max(d.w.length, 4));
+  row.el.style.setProperty("--rlen", Math.max(d.r.length*0.95, 8));
+}
+function render(){
+  const base = Math.floor(pos), frac = pos - base;
+  for (const row of rows){
+    fill(row, mod(base + row.i));
+    row.el.style.transform = `translateY(${(row.i - frac) * rowH}px)`;
+  }
+  if (lastBase !== null && base !== lastBase) tick();
+  lastBase = base;
+}
+
+/* ---------- settings ---------- */
+const SPEED = {slow:1.5, normal:2.8, fast:5.5}; // 語 / 秒
+let mode = "auto", speed = "normal";
+const store = {
+  get(k,f){ try{ const v = localStorage.getItem(k); return v===null?f:JSON.parse(v);}catch(e){return f;} },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+mode = store.get("kz-mode","auto"); speed = store.get("kz-speed2","normal");
+let soundOn = store.get("kz-sound", true);
+const modeBtns = [$("mode-auto"), $("mode-manual")];
+const speedBtns = [...document.querySelectorAll("[data-speed]")];
+function syncSettings(){
+  $("mode-auto").setAttribute("aria-pressed", mode==="auto");
+  $("mode-manual").setAttribute("aria-pressed", mode==="manual");
+  speedBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.speed===speed));
+  $("sound").setAttribute("aria-pressed", soundOn);
+  $("sound").textContent = soundOn ? "効果音 オン" : "効果音 オフ";
+}
+$("mode-auto").onclick = () => { mode="auto"; store.set("kz-mode",mode); syncSettings(); };
+$("mode-manual").onclick = () => { mode="manual"; store.set("kz-mode",mode); syncSettings(); };
+speedBtns.forEach(b => b.onclick = () => { speed=b.dataset.speed; store.set("kz-speed2",speed); syncSettings(); });
+$("sound").onclick = () => { soundOn=!soundOn; store.set("kz-sound",soundOn); syncSettings(); };
+$("full").onclick = () => {
+  const d = document;
+  try{
+    if (d.fullscreenElement) d.exitFullscreen().catch(()=>{});
+    else d.documentElement.requestFullscreen().catch(()=>{});
+  }catch(e){}
+};
+
+/* ---------- sound ---------- */
+let actx = null;
+function audio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
+function beep(freq, dur, vol, type="square", when=0){
+  const c = actx; if(!c || !soundOn) return;
+  const t = c.currentTime + when, o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t+dur+0.02);
+}
+function tick(){ if(phase==="spin"||phase==="brake") beep(1400, .03, .05); }
+function chime(){ beep(784,.25,.12,"triangle",0); beep(1047,.25,.12,"triangle",.14); beep(1319,.5,.12,"triangle",.28); }
+
+/* ---------- motion ---------- */
+let phase = "idle", v = 0, vmax = 0, t0 = 0, spinTime = 0, autoStopAt = 0;
+let brake = null, last = 0;
+const go = $("go");
+
+function recent(){ return store.get("kz-recent", []); }
+function pickTarget(){
+  const avoid = new Set(recent().slice(-Math.min(15, N-5)));
+  const lw = store.get("kz-last", null); if (lw) avoid.add(lw);
+  const pool = DATA.map((_,i)=>i).filter(i => !avoid.has(DATA[i].w));
+  const list = pool.length ? pool : DATA.map((_,i)=>i);
+  return list[Math.floor(Math.random()*list.length)];
+}
+function startSpin(){
+  audio(); if (actx && actx.state==="suspended") actx.resume();
+  win.classList.remove("landed");
+  rows.forEach(r => r.el.classList.remove("hit"));
+  vmax = SPEED[speed]; v = 0; spinTime = 0;
+  autoStopAt = 3.2 + Math.random()*2.6;
+  phase = "spin";
+  modeBtns.concat(speedBtns).forEach(b => b.disabled = true);
+  updateButton();
+  last = performance.now();
+  requestAnimationFrame(loop);
+}
+function beginBrake(target){
+  const v0 = Math.max(v, vmax*0.7);
+  const minD = Math.max(v0 * 1.15, 1.5);
+  let d;
+  if (target === undefined){                                           // ストップ：見えている流れのまま、自然にとまる
+    d = Math.ceil(pos + minD) - pos;
+    if (DATA[mod(pos + d)].w === store.get("kz-last", null)) d += 1;   // 前回と同じ語にはとまらない
+  }
+  else { d = mod(target - Math.ceil(pos)) + (Math.ceil(pos) - pos); while (d < minD) d += N; }
+  const T = 2*d / v0;
+  brake = {start:pos, v0, T, t:0, end:pos+d};
+  phase = "brake";
+  updateButton();
+}
+function loop(now){
+  const dt = Math.min(0.05, (now - last)/1000); last = now;
+  if (phase === "spin"){
+    spinTime += dt;
+    v = Math.min(vmax, v + vmax*dt/0.6);
+    pos += v*dt;
+    if (mode === "auto" && spinTime >= autoStopAt) beginBrake(pickTarget());
+  } else if (phase === "brake"){
+    brake.t += dt;
+    if (brake.t >= brake.T){ pos = Math.round(brake.end); render(); finish(); return; }
+    const t = brake.t;
+    pos = brake.start + brake.v0*t - brake.v0/(2*brake.T)*t*t;
+  }
+  render();
+  if (phase === "spin" || phase === "brake") requestAnimationFrame(loop);
+}
+function finish(){
+  phase = "done";
+  const idx = mod(pos);
+  rows.find(r => r.i===0).el.classList.add("hit");
+  win.classList.add("landed");
+  modeBtns.concat(speedBtns).forEach(b => b.disabled = false);
+  const rc = recent().filter(w => w !== DATA[idx].w); rc.push(DATA[idx].w); store.set("kz-recent", rc.slice(-20));
+  store.set("kz-last", DATA[idx].w);
+  showResult(idx);
+  chime();
+  updateButton();
+}
+function updateButton(){
+  go.classList.remove("stop"); go.disabled = false;
+  if (phase === "spin" && mode === "manual"){ go.textContent = "ストップ"; go.classList.add("stop"); }
+  else if (phase === "spin" || phase === "brake"){ go.textContent = mode==="manual" ? "とまります…" : "まわっています…"; go.disabled = true; }
+  else if (phase === "done"){ go.textContent = "もう一回"; }
+  else go.textContent = "スタート";
+}
+function press(){
+  if (phase === "idle" || phase === "done") startSpin();
+  else if (phase === "spin" && mode === "manual") beginBrake();
+}
+go.onclick = press;
+document.addEventListener("keydown", e => {
+  if ((e.code === "Space" || e.code === "Enter") && !(e.target instanceof HTMLButtonElement)){
+    e.preventDefault(); press();
+  }
+});
+
+/* ---------- result ---------- */
+let current = null;
+function showResult(idx){
+  const d = DATA[idx]; current = d;
+  $("waiting").hidden = true;
+  $("answer").hidden = false;
+  $("a-reading").textContent = d.r;
+  $("a-word").textContent = d.w;
+  const L = d.w.length;
+  $("a-word").style.setProperty("--wfs", L <= 4 ? "min(5.2vw,9.5vh)" : L <= 7 ? "min(3.9vw,7vh)" : "min(3vw,5.4vh)");
+  $("a-word").style.setProperty("--wfm", L <= 4 ? "10vw" : L <= 7 ? "7.4vw" : "5.4vw");
+  $("a-illust").innerHTML = `<svg class="art" viewBox="0 0 120 120">${ART[d.w]||""}</svg>`;
+  const vids = VIDEOS[d.w] || [];
+  $("a-videos").innerHTML = vids.map((id,k)=>`<a class="tool video" href="https://youtu.be/${id}" target="_blank" rel="noopener"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4l-7 4z"/></svg>${vids.length>1?"動画"+"①②③④"[k]:"動画を見る"}</a>`).join("");
+  $("a-meaning").textContent = d.m;
+  $("a-tip").textContent = d.h;
+  $("a-story").textContent = "もとになったお話：" + d.s;
+  $("a-story").hidden = true; $("t-story").setAttribute("aria-pressed","false");
+  const res = $("result"), seal = $("seal");
+  res.classList.remove("reveal"); seal.classList.remove("stamp");
+  void res.offsetWidth;
+  res.classList.add("reveal"); seal.classList.add("stamp");
+}
+$("t-story").onclick = () => {
+  const s = $("a-story"); s.hidden = !s.hidden;
+  $("t-story").setAttribute("aria-pressed", String(!s.hidden));
+};
+
+/* ---------- boot ---------- */
+syncSettings();
+measure(); render();
+window.addEventListener("resize", () => { measure(); render(); });
+if (document.fonts) document.fonts.ready.then(() => { measure(); render(); });
+</script>
+
+</body>
+</html>
