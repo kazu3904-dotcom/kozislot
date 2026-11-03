@@ -176,8 +176,8 @@ main{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:cla
 }
 .seal.stamp{animation:stamp .45s cubic-bezier(.2,1.6,.4,1)}
 @keyframes stamp{0%{transform:rotate(-8deg) scale(2.4); opacity:0}100%{transform:rotate(-8deg) scale(1); opacity:1}}
-.result.reveal .word,.result.reveal .meaning,.result.reveal .closing,.result.reveal .tip{animation:rise .5s ease-out both}
-.result.reveal .meaning{animation-delay:.15s}.result.reveal .closing{animation-delay:.3s}.result.reveal .tip{animation-delay:.45s}
+.result.reveal .word,.result.open .meaning,.result.open .closing,.result.open .tip{animation:rise .5s ease-out both}
+.result.open .meaning{animation-delay:.15s}.result.open .closing{animation-delay:.3s}.result.open .tip{animation-delay:.45s}
 @keyframes rise{from{opacity:.0; transform:translateY(10px)}to{opacity:1; transform:none}}
 
 .waiting{display:flex; flex-direction:column; gap:14px; justify-content:center; height:100%}
@@ -189,6 +189,67 @@ footer a{color:var(--brass)}
 .mini{font:500 inherit/1 var(--f-ui); font-size:inherit; background:transparent; color:#cfd5ec; border:1px solid #4b5684; border-radius:999px; padding:.45em .9em; cursor:pointer}
 .mini[aria-pressed="false"]{opacity:.6}
 button:focus-visible{outline:3px solid #9fd0ff; outline-offset:3px}
+
+/* ---------- 設定・一覧・追加の表示 ---------- */
+.ctrl{display:inline-flex; align-items:center; gap:.4em; font:700 clamp(14px,1.35vw,20px)/1 var(--f-ui); color:var(--paper); background:var(--cabinet-deep); border:2px solid var(--brass-deep); border-radius:999px; padding:.6em 1em; cursor:pointer; letter-spacing:.06em}
+.ctrl svg{width:1.15em; height:1.15em; fill:none; stroke:var(--brass); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round}
+.ctrl:disabled{opacity:.5; cursor:not-allowed}
+.mode-seg button:disabled{opacity:.55}
+.tip.ex .label{background:#4f7f3a}
+.tip.en .label{background:#2f4f9a}
+.tip.en #a-en{font-family:var(--f-ui); font-weight:700; letter-spacing:.01em}
+.tool.memo[aria-pressed="true"]{background:#4f7f3a; border-color:#4f7f3a; color:#fff}
+.reveal-box{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex:1; min-height:120px; text-align:center}
+.reveal-box p{margin:0; text-wrap:balance; font-family:var(--f-word); font-size:clamp(15px,min(1.7vw,3vh),26px); color:var(--ink-soft)}
+.reveal-btn{font:700 clamp(22px,min(3vw,5.4vh),48px)/1 var(--f-ui); letter-spacing:.15em; color:#fff; background:var(--ink); border:0; border-radius:16px; padding:.55em 1.4em; cursor:pointer; box-shadow:0 6px 0 #000}
+.reveal-btn:active{transform:translateY(4px); box-shadow:0 2px 0 #000}
+.waiting-note{font-size:clamp(14px,1.4vw,20px)!important; color:var(--ink-soft); border-top:2px dashed var(--paper-edge); padding-top:10px}
+.window.blur .row .w,.window.blur .row .r{filter:blur(1.4px)}
+.window.flash .row:not(.center){visibility:hidden}
+.row.center.pop .w,.row.center.pop .r{animation:flashpop .16s ease-out}
+@keyframes flashpop{from{transform:scale(.85); opacity:.25}to{transform:none; opacity:1}}
+
+.dlg-back{position:fixed; inset:0; z-index:50; background:rgba(10,14,30,.66); display:grid; place-items:center;
+  padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.dlg{width:min(980px,100%); max-height:100%; display:flex; flex-direction:column; background:var(--paper); color:var(--ink); border-radius:14px; box-shadow:0 0 0 4px var(--brass-deep), 0 24px 60px rgba(0,0,0,.5); overflow:hidden}
+.dlg-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px; background:var(--cabinet); flex-wrap:wrap}
+.tabs{display:flex; gap:6px; flex-wrap:wrap}
+.tab{font:700 clamp(14px,1.4vw,20px)/1 var(--f-ui); color:var(--paper); background:transparent; border:2px solid var(--brass-deep); border-radius:999px; padding:.6em 1.1em; cursor:pointer}
+.tab[aria-selected="true"]{background:var(--brass); color:var(--cabinet-deep); border-color:var(--brass)}
+.dlg-close{font:700 clamp(14px,1.3vw,18px)/1 var(--f-ui); background:var(--shu); color:#fff; border:0; border-radius:999px; padding:.65em 1.2em; cursor:pointer}
+.dlg-body{overflow-y:auto; padding:6px clamp(14px,2.4vw,28px) 18px; overscroll-behavior:contain}
+.dlg-body h3{font:700 clamp(13px,1.1vw,16px)/1 var(--f-ui); letter-spacing:.2em; color:var(--brass-deep); margin:16px 0 4px; padding-bottom:6px; border-bottom:2px solid var(--paper-edge)}
+.srow{display:flex; align-items:center; justify-content:space-between; gap:8px 16px; padding:10px 0; border-bottom:1px dashed var(--paper-edge); flex-wrap:wrap}
+.sname{font:700 clamp(15px,1.4vw,20px)/1.35 var(--f-ui); min-width:0; flex:1 1 220px}
+.sname small{display:block; font-weight:500; font-size:clamp(12px,1vw,14px); color:var(--ink-soft); margin-top:3px}
+.seg.light{background:#efe5c9; border-color:var(--paper-edge); flex-wrap:wrap}
+.seg.light button{color:var(--ink)}
+.seg.light button[aria-pressed="true"]{background:var(--ink); color:var(--paper)}
+.dlg-foot{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:16px; font-size:clamp(12px,1vw,14px); color:var(--ink-soft)}
+.list-tools{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding-top:12px}
+.list-tools strong{font:700 clamp(15px,1.4vw,20px)/1 var(--f-ui); margin-right:auto; font-variant-numeric:tabular-nums}
+.list-note{margin:10px 0; font-size:clamp(13px,1.1vw,16px); color:var(--ink-soft); line-height:1.6}
+.wlist{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px}
+.witem{display:flex; align-items:center; gap:10px; padding:8px 10px; border:2px solid var(--paper-edge); border-radius:10px; background:#fffaf0; cursor:pointer; min-width:0}
+.witem:has(input:not(:checked)){opacity:.5; background:transparent}
+.witem input{width:22px; height:22px; accent-color:var(--shu); flex:none; margin:0}
+.wtext{display:flex; flex-direction:column; min-width:0}
+.wr{font-size:11px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ww{font:600 clamp(15px,1.3vw,19px)/1.3 var(--f-word)}
+.vbadge{margin-left:auto; flex:none; font:700 11px/1 var(--f-ui); color:#fff; background:var(--shu); border-radius:999px; padding:.35em .6em}
+@media (max-aspect-ratio:4/5), (max-width:600px){
+  .ctrl{font-size:clamp(12px,3.2vw,18px); padding:.5em .8em}
+  .reveal-btn{font-size:clamp(20px,6vw,40px)}
+  .reveal-box p{font-size:clamp(13px,3.4vw,22px)}
+  .waiting-note{font-size:clamp(12px,3.2vw,18px)!important}
+  .wlist{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+}
+@media (max-height:560px) and (min-aspect-ratio:4/5) and (min-width:601px){
+  .ctrl{font-size:12px; padding:.45em .7em}
+  .reveal-box{min-height:70px; gap:6px}
+  .reveal-btn{font-size:20px}
+  .reveal-box p{font-size:13px}
+}
 
 /* ---------- 1画面におさめる（スマホ・タブレット） ---------- */
 main{min-height:0}
@@ -282,18 +343,14 @@ main{min-height:0}
       <div class="controls">
         <div class="opt">
           <span class="seg-label">とめかた</span>
-          <div class="seg" role="group" aria-label="とめかた">
+          <div class="seg mode-seg" role="group" aria-label="とめかた">
             <button id="mode-auto" aria-pressed="true">じどうでとまる</button>
             <button id="mode-manual" aria-pressed="false">ストップでとめる</button>
           </div>
         </div>
         <div class="opt">
-          <span class="seg-label">はやさ</span>
-          <div class="seg" role="group" aria-label="まわるはやさ">
-            <button data-speed="slow" aria-pressed="false">ゆっくり</button>
-            <button data-speed="normal" aria-pressed="true">ふつう</button>
-            <button data-speed="fast" aria-pressed="false">はやい</button>
-          </div>
+          <button class="ctrl" id="open-set"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>設定</button>
+          <button class="ctrl" id="open-list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6l1.2 1.2L6 5M3 12l1.2 1.2L6 11M3 18l1.2 1.2L6 17"/></svg>一覧</button>
         </div>
       </div>
 
@@ -308,6 +365,7 @@ main{min-height:0}
           <li><b>じどうでとまる</b>：しばらくまわって、じどうでとまります。</li>
           <li><b>ストップでとめる</b>：ストップボタンをおすと、ゆっくりとまります。</li>
         </ol>
+        <p class="waiting-note">「設定」で、止まるまでの時間・フラッシュ表示・意味の出し方・英語などを変えられます。「一覧」でチェックを外した語は、スロットに出なくなります。</p>
       </div>
       <div id="answer" hidden style="display:contents">
         <div class="headrow">
@@ -318,25 +376,69 @@ main{min-height:0}
           </div>
           <div class="illust" aria-hidden="true"><div class="art-wrap" id="a-illust"></div><div class="seal" id="seal">今日</div></div>
         </div>
-        <p class="meaning"><span class="label">意味</span><span id="a-meaning"></span></p>
-        <p class="closing">今日一日、これを意識して生活しましょう。</p>
-        <p class="tip"><span class="label">たとえば</span><span id="a-tip"></span></p>
-        <p class="story" id="a-story" hidden></p>
-        <div class="tools">
-          <button class="tool" id="t-story" aria-pressed="false">もとになったお話</button>
-          <span id="a-videos" style="display:contents"></span>
+        <div class="reveal-box" id="a-reveal" hidden>
+          <button class="reveal-btn" id="t-reveal">意味を見る</button>
+          <p>どんな意味だったかな？ 思い出してから おしてみよう</p>
+        </div>
+        <div id="a-body" style="display:contents">
+          <p class="meaning"><span class="label">意味</span><span id="a-meaning"></span></p>
+          <p class="closing">今日一日、これを意識して生活しましょう。</p>
+          <p class="tip" id="p-tip"><span class="label">たとえば</span><span id="a-tip"></span></p>
+          <p class="tip ex" id="p-ex"><span class="label">使い方</span><span id="a-ex"></span></p>
+          <p class="tip en" id="p-en"><span class="label">英語では</span><span id="a-en" lang="en"></span></p>
+          <p class="story" id="a-story" hidden></p>
+          <div class="tools">
+            <button class="tool" id="t-story" aria-pressed="false">もとになったお話</button>
+            <span id="a-videos" style="display:contents"></span>
+            <button class="tool memo" id="t-memo" aria-pressed="false">おぼえた！</button>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <span><span class="foot-count">小・中学生向け　全<span id="count"></span>語　｜　</span>故事成語の動画は <a href="https://kazu3904-dotcom.github.io/koziseigo/" target="_blank" rel="noopener">故事成語なぞとき図鑑</a></span>
+    <span><span class="foot-count">スロットに出る語 <span id="count"></span>／<span id="total"></span>　｜　</span>故事成語の動画は <a href="https://kazu3904-dotcom.github.io/koziseigo/" target="_blank" rel="noopener">故事成語なぞとき図鑑</a></span>
     <span style="display:flex;gap:8px">
-      <button class="mini" id="sound" aria-pressed="true">効果音 オン</button>
       <button class="mini" id="full">全画面</button>
     </span>
   </footer>
+
+  <div class="dlg-back" id="dlg" hidden>
+    <div class="dlg" role="dialog" aria-modal="true" aria-label="設定と一覧">
+      <div class="dlg-head">
+        <div class="tabs" role="tablist">
+          <button class="tab" id="tab-set" role="tab" aria-selected="true">設定</button>
+          <button class="tab" id="tab-list" role="tab" aria-selected="false">故事成語の一覧</button>
+        </div>
+        <button class="dlg-close" id="dlg-close">とじる</button>
+      </div>
+      <div class="dlg-body" id="pane-set">
+        <h3>動き</h3>
+        <div class="srow"><div class="sname">まわし方<small>スロット：上から下へ流れる／フラッシュ：1語ずつパッと切りかわる</small></div><div class="seg light" data-key="style" role="group"><button data-v="slot">スロット</button><button data-v="flash">フラッシュ</button></div></div>
+        <div class="srow"><div class="sname">はやさ<small id="row-speed-note">止まるまでに、ゆっくり＝約半周／ふつう＝約1周／はやい＝約2周 回ります</small></div><div class="seg light" data-key="speed" role="group"><button data-v="slow">ゆっくり</button><button data-v="normal">ふつう</button><button data-v="fast">はやい</button></div></div>
+        <div class="srow"><div class="sname">止まるまでの時間<small>「みじかい」なら1〜2秒ほどで止まります</small></div><div class="seg light" data-key="dur" role="group"><button data-v="short">みじかい</button><button data-v="normal">ふつう</button><button data-v="long">ながい</button></div></div>
+        <div class="srow"><div class="sname">止め方<small></small></div><div class="seg light" data-key="mode" role="group"><button data-v="auto">じどうでとまる</button><button data-v="manual">ストップでとめる</button></div></div>
+        <h3>表示</h3>
+        <div class="srow"><div class="sname">意味の出し方<small>「ボタンで出す」なら、止まったあと思い出してから確かめられます</small></div><div class="seg light" data-key="reveal" role="group"><button data-v="now">すぐ出す</button><button data-v="tap">ボタンで出す</button></div></div>
+        <div class="srow"><div class="sname">たとえば（行動のヒント）<small></small></div><div class="seg light" data-key="showTip" role="group"><button data-v="true">出す</button><button data-v="false">出さない</button></div></div>
+        <div class="srow"><div class="sname">使い方（例文）<small></small></div><div class="seg light" data-key="showEx" role="group"><button data-v="true">出す</button><button data-v="false">出さない</button></div></div>
+        <div class="srow"><div class="sname">英語では<small></small></div><div class="seg light" data-key="showEn" role="group"><button data-v="true">出す</button><button data-v="false">出さない</button></div></div>
+        <div class="srow"><div class="sname">効果音<small></small></div><div class="seg light" data-key="sound" role="group"><button data-v="true">オン</button><button data-v="false">オフ</button></div></div>
+        <div class="dlg-foot"><button class="tool" id="reset-set">はじめの設定にもどす</button><span>設定は、この端末のブラウザに保存されます。</span></div>
+      </div>
+      <div class="dlg-body" id="pane-list" hidden>
+        <div class="list-tools">
+          <strong id="list-count"></strong>
+          <button class="tool" data-all="on">すべて出す</button>
+          <button class="tool" data-all="off">すべて外す</button>
+          <button class="tool" data-all="video">動画があるものだけ</button>
+        </div>
+        <p class="list-note">チェックを外した故事成語は、スロットに出なくなります。おぼえた語は外しておきましょう。結果画面の「おぼえた！」でも外せます。</p>
+        <div class="wlist" id="wlist"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -360,7 +462,7 @@ const DATA = [
  {w:"守株",r:"しゅしゅ",m:"古いやり方にこだわって、工夫しようとしないこと。",h:"いつもと同じやり方だけでなく、新しい工夫をしてみよう。",s:"切り株にぶつかったウサギを手に入れた農民が、またウサギが来ると思って畑仕事をやめ、株を見張り続けた（『韓非子』）。"},
  {w:"百聞は一見に如かず",r:"ひゃくぶんはいっけんにしかず",m:"何度も人から聞くより、一度自分の目で見るほうがよくわかるということ。",h:"気になったことは、自分の目でたしかめてみよう。",s:"漢の将軍・趙充国が、敵のようすは百回聞くより、一度行って見るのが一番だと言った。"},
  {w:"虎穴に入らずんば虎子を得ず",r:"こけつにいらずんばこじをえず",m:"危険をおかさなければ、大きな成功は手に入らないということ。",h:"勇気を出して、手をあげて発表してみよう。",s:"漢の班超は、危険をおそれずに敵の陣にせめこみ、大きな手がらを立てた。"},
- {w:"井の中の蛙",r:"いのなかのかわず",m:"せまい世界にいて、外の広い世界を知らないこと。",h:"自分とちがう考えにも、耳をかたむけてみよう。",s:"井戸の中のカエルは、海の広さを知らない（『荘子』）。"},
+ {w:"井の中の蛙大海を知らず",r:"いのなかのかわずたいかいをしらず",m:"せまい世界にいて、外の広い世界を知らないこと。",h:"自分とちがう考えにも、耳をかたむけてみよう。",s:"井戸の中のカエルは、海の広さを知らない（『荘子』）。"},
  {w:"登竜門",r:"とうりゅうもん",m:"そこを通りぬければ、大きく成長・出世できるという難しい関門。",h:"目の前の難しい課題を、成長のチャンスだと思って取り組もう。",s:"黄河の急流「竜門」をのぼりきった鯉は、竜になるといわれた。"},
  {w:"覆水盆に返らず",r:"ふくすいぼんにかえらず",m:"一度してしまったことは、取り返しがつかないということ。",h:"言ってから後悔しないよう、言葉を選んで話そう。",s:"太公望が、はなれていった妻に、こぼした水はもとの盆にはもどらないと言った。"},
  {w:"大器晩成",r:"たいきばんせい",m:"大人物は、時間をかけてゆっくりと大きく育つということ。",h:"すぐに結果が出なくても、あせらずコツコツ続けよう。",s:"大きな器は、できあがるまでに時間がかかる（『老子』）。"},
@@ -441,7 +543,7 @@ const VIDEOS = {
  "蛇足":["E90YP7V1uJk"], "虎の威を借るきつね":["2bDuLfdZZYI"], "漁夫の利":["gI0lL1hfMe0"], "臥薪嘗胆":["eKljvBgN2lw"],
  "呉越同舟":["jblnKyl0oSM","2B8sYNMoEHc"], "覆水盆に返らず":["fbLPmi4IUvQ"], "四面楚歌":["OxhFoUG0mrI"], "逆鱗に触れる":["VkSF8vt49jQ"],
  "鶏口牛後":["XvZEr3--4Kk"], "羊頭狗肉":["ycYYp6GYeOc"], "温故知新":["uImVqkMyQL8"], "破竹の勢い":["Rtrh8HYJYgM"],
- "一衣帯水":["i3V6qTgDmoA"], "虎穴に入らずんば虎子を得ず":["l5_CZEwKiyY"], "他山の石":["fHBBfJLR20k"], "疑心暗鬼":["hXN0LPwqoP8"], "刎頸の交わり":["Q7pL74RLetM"]
+ "一衣帯水":["i3V6qTgDmoA"], "虎穴に入らずんば虎子を得ず":["l5_CZEwKiyY"], "他山の石":["fHBBfJLR20k"], "百聞は一見に如かず":["l_OaB29b4Bo"], "井の中の蛙大海を知らず":["-TlgL5OoxFg"], "疑心暗鬼":["hXN0LPwqoP8"], "刎頸の交わり":["Q7pL74RLetM"]
 };
 const ART = {
 "温故知新":
@@ -524,7 +626,7 @@ const ART = {
   +c(46,62,6,"tg")+c(74,62,6,"tg")+c(60,76,17,"tg")
   +p("M60 60v7M51 62l2 6M69 62l-2 6M44 74h5M71 74h5","thin")
   +c(54,73,1.8,"inkf")+c(66,73,1.8,"inkf")+p("M57 81l3 3l3 -3M60 84v3","thin")+p("M44 84l-10 2M76 84l10 2","thin"),
-"井の中の蛙":
+"井の中の蛙大海を知らず":
   c(60,22,9,"wf")+p("M30 60h60v40H30z","p")
   +p("M30 72h60M30 86h60M50 60v12M70 60v12M40 72v14M60 72v14M80 72v14M50 86v14M70 86v14","thin")
   +p("M26 56h68v6H26z","br")
@@ -650,176 +752,288 @@ const ART = {
   p("M18 56h24l-3 30H21z","p")+p("M20 64h20l-1 12H21z","gf")+p("M24 50q-3 -5 0 -10M34 50q-3 -5 0 -10","thin")
   +face(66,58,14,"grit")+tx(66,92,10,"にがい")+sp(98,38,6,"rs")+heart(98,66,1.4,"s")
 };
-const N = DATA.length;
-const $ = id => document.getElementById(id);
-$("count").textContent = N;
+/* ---------- 使い方の例・英語 ---------- */
+const EXTRA = {
+ "温故知新":["去年の作文を読み直したら、今年のテーマのヒントが見つかった。まさに温故知新だ。","Learn from the past to find something new."],
+ "臥薪嘗胆":["去年の大会で負けたくやしさを忘れず、臥薪嘗胆の思いで練習を続けた。","Endure hardship to reach your goal."],
+ "五十歩百歩":["宿題を三つ忘れた兄も、二つ忘れたぼくも、五十歩百歩だ。","Six of one, half a dozen of the other."],
+ "漁夫の利":["二人がボールを取り合っているすきに、三人目が拾っていった。漁夫の利だね。","While two dogs fight for a bone, a third runs away with it."],
+ "矛盾":["「静かにしなさい！」と大声で言うのは矛盾している。","That's a contradiction."],
+ "蛇足":["スピーチの最後に付け足した話は、蛇足だったかもしれない。","Don't gild the lily."],
+ "背水の陣":["次の試合に負けたら終わりだ。背水の陣でのぞもう。","Fight with your back to the wall."],
+ "四面楚歌":["意見を言ったら全員に反対されて、四面楚歌になってしまった。","Surrounded by enemies on all sides."],
+ "塞翁が馬":["遠足は雨で中止になったけど、教室でのレクが楽しかった。人間万事塞翁が馬だね。","Every cloud has a silver lining."],
+ "推敲":["作文を清書する前に、もう一度推敲しよう。","Polish your writing."],
+ "杞憂":["発表で失敗しないか心配したけど、杞憂に終わった。","Don't cross the bridge before you come to it."],
+ "他山の石":["友だちの失敗を他山の石として、ぼくも気をつけよう。","Learn from the mistakes of others."],
+ "蛍雪の功":["毎朝コツコツ勉強して合格できたのは、蛍雪の功だ。","The fruit of hard study."],
+ "朝三暮四":["おやつを朝と夕方に分けても、量は同じ。朝三暮四だよ。","It all comes to the same thing."],
+ "呉越同舟":["いつもけんかしている二人が、同じ班で協力している。呉越同舟だ。","Rivals in the same boat."],
+ "画竜点睛":["せっかくの作品なのに、名前を書き忘れては画竜点睛を欠く。","The finishing touch."],
+ "守株":["前にうまくいった方法ばかりにこだわるのは、守株と同じだ。","Stick to the old ways and wait for luck."],
+ "百聞は一見に如かず":["教科書で読むより、実際に見学に行こう。百聞は一見に如かずだ。","Seeing is believing."],
+ "虎穴に入らずんば虎子を得ず":["虎穴に入らずんば虎子を得ず。思い切って、学級委員に立候補した。","Nothing ventured, nothing gained."],
+ "井の中の蛙大海を知らず":["クラスで一番だと安心していたら、井の中の蛙大海を知らずだよ。","A frog in a well knows nothing of the great ocean."],
+ "登竜門":["このコンクールは、若い画家の登竜門と言われている。","A gateway to success."],
+ "覆水盆に返らず":["言ってしまった言葉は取り消せない。覆水盆に返らずだ。","No use crying over spilt milk."],
+ "大器晩成":["今は記録が出なくても、きみは大器晩成タイプだよ。","Great talents mature late."],
+ "完璧":["何度も練習したので、今日の演奏は完璧だった。","Perfect, without a flaw."],
+ "助長":["弟の宿題を全部やってあげると、なまけ心を助長してしまう。","Too much help can do more harm than good."],
+ "断腸の思い":["大切なペットを手放すのは、断腸の思いだった。","Heartbreaking."],
+ "先んずれば人を制す":["先んずれば人を制す。宿題を早めに終わらせて、週末をゆっくり過ごそう。","The early bird catches the worm."],
+ "備えあれば憂いなし":["防災リュックを用意しておこう。備えあれば憂いなしだ。","Better safe than sorry."],
+ "李下に冠を正さず":["テスト中は、まわりをきょろきょろ見ないようにしよう。李下に冠を正さずだ。","Avoid anything that may cause suspicion."],
+ "鶏口牛後":["強いチームの補欠より、鶏口牛後で今のチームのキャプテンをがんばりたい。","Better to be the head of a dog than the tail of a lion."],
+ "出藍の誉れ":["コーチより速く泳げるようになった。出藍の誉れだね。","The student surpasses the teacher."],
+ "切磋琢磨":["ライバルと切磋琢磨して、二人とも記録がのびた。","Grow together through friendly rivalry."],
+ "羊頭狗肉":["「すごくおいしい」と書いてあったのに、ふつうの味だった。羊頭狗肉だ。","All show and no substance."],
+ "疑心暗鬼":["消しゴムがなくなって疑心暗鬼になったけど、筆箱の中にあった。","Suspicion creates imaginary monsters."],
+ "水魚の交わり":["あの二人は水魚の交わりで、いつも助け合っている。","As close as fish and water."],
+ "竹馬の友":["となりの家のけんたくんは、ぼくの竹馬の友だ。","A childhood friend."],
+ "雨垂れ石を穿つ":["毎日十分の音読で、読むのが速くなった。雨垂れ石を穿つだ。","Constant dripping wears away the stone."],
+ "千里の道も一歩から":["漢字百個を覚えるのも、千里の道も一歩から。まず今日の五個から始めよう。","A journey of a thousand miles begins with a single step."],
+ "過ぎたるは猶及ばざるが如し":["練習しすぎて足をいためてしまった。過ぎたるは猶及ばざるが如しだ。","Too much is as bad as too little."],
+ "少年老い易く学成り難し":["少年老い易く学成り難し。今のうちに、たくさん本を読もう。","Youth fades quickly, and learning is hard to master."],
+ "一を聞いて十を知る":["少し説明しただけで、彼は一を聞いて十を知るように全部わかった。","A word to the wise is enough."],
+ "良薬は口に苦し":["友だちの注意は耳が痛かったけど、良薬は口に苦しだ。","Good medicine tastes bitter."],
+ "一寸の虫にも五分の魂":["一年生にも一寸の虫にも五分の魂。ちゃんと意見を聞こう。","Even a worm will turn."],
+ "虎の威を借るきつね":["お兄さんが強いからといっていばるのは、虎の威を借るきつねだ。","An ass in a lion's skin."],
+ "逆鱗に触れる":["約束を破って、お父さんの逆鱗に触れてしまった。","Make someone furious."],
+ "破竹の勢い":["わたしたちのチームは、破竹の勢いで五連勝した。","With unstoppable momentum."],
+ "一衣帯水":["日本と韓国は、海をはさんで一衣帯水の関係にある。","Separated only by a narrow strip of water."],
+ "刎頸の交わり":["二人はけんかをのりこえて、刎頸の交わりと呼べるほどの友になった。","Friends who would give their lives for each other."]
+};
+DATA.forEach(d => { const t = EXTRA[d.w] || ["",""]; d.x = t[0]; d.e = t[1]; });
 
+const $ = id => document.getElementById(id);
+const store = {
+  get(k,f){ try{ const v = localStorage.getItem(k); return v===null?f:JSON.parse(v);}catch(e){return f;} },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
 const now = new Date();
 $("date").textContent = `${now.getMonth()+1}月${now.getDate()}日（${"日月火水木金土"[now.getDay()]}）`;
+
+/* ---------- 設定（この端末のブラウザに保存） ---------- */
+const DEF = {mode:"auto", style:"slot", speed:"normal", dur:"normal", reveal:"now", showTip:true, showEx:true, showEn:false, sound:true};
+let S = Object.assign({}, DEF, store.get("kz-settings", {}));
+function saveS(){ store.set("kz-settings", S); }
+let OFF = new Set(store.get("kz-off", []));
+function saveOff(){ store.set("kz-off", [...OFF]); }
+let dirty = false;
 
 /* ---------- reel ---------- */
 const win = $("window");
 const rows = [];
 for (let i=-2;i<=2;i++){
   const el = document.createElement("div");
-  el.className = "row";
+  el.className = "row" + (i===0 ? " center" : "");
   el.innerHTML = '<span class="r"></span><span class="w"></span>';
   win.appendChild(el);
   rows.push({i, el, idx:-1});
 }
-const mod = n => ((n % N) + N) % N;
-let rowH = 100;
+let ACTIVE = [], pos = 0, lastBase = null, rowH = 100;
+const modA = n => { const L = ACTIVE.length || 1; return ((n % L) + L) % L; };
 function measure(){ rowH = win.clientHeight / 3; }
-let pos = Math.floor(Math.random()*N), lastBase = null;
 function fill(row, idx){
   if (row.idx === idx) return;
   row.idx = idx;
   const d = DATA[idx];
-  row.el.querySelector(".w").textContent = d.w;
-  row.el.querySelector(".r").textContent = d.r;
-  row.el.style.setProperty("--len", Math.max(d.w.length, 4));
-  row.el.style.setProperty("--rlen", Math.max(d.r.length*0.95, 8));
+  row.el.querySelector(".w").textContent = d ? d.w : "";
+  row.el.querySelector(".r").textContent = d ? d.r : "";
+  row.el.style.setProperty("--len", d ? Math.max(d.w.length, 4) : 4);
+  row.el.style.setProperty("--rlen", d ? Math.max(d.r.length*0.95, 8) : 8);
 }
 function render(){
+  if (!ACTIVE.length){
+    rows.forEach(r => { r.idx = -2; r.el.style.transform = `translateY(${r.i*rowH}px)`;
+      r.el.querySelector(".w").textContent = r.i===0 ? "一覧で語をえらんでください" : "";
+      r.el.querySelector(".r").textContent = ""; r.el.style.setProperty("--len", 14); });
+    return;
+  }
   const base = Math.floor(pos), frac = pos - base;
   for (const row of rows){
-    fill(row, mod(base + row.i));
+    fill(row, ACTIVE[modA(base + row.i)]);
     row.el.style.transform = `translateY(${(row.i - frac) * rowH}px)`;
   }
   if (lastBase !== null && base !== lastBase) tick();
   lastBase = base;
 }
-
-/* ---------- settings ---------- */
-const SPEED = {slow:1.5, normal:2.8, fast:5.5}; // 語 / 秒
-let mode = "auto", speed = "normal";
-const store = {
-  get(k,f){ try{ const v = localStorage.getItem(k); return v===null?f:JSON.parse(v);}catch(e){return f;} },
-  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
-};
-mode = store.get("kz-mode","auto"); speed = store.get("kz-speed2","normal");
-let soundOn = store.get("kz-sound", true);
-const modeBtns = [$("mode-auto"), $("mode-manual")];
-const speedBtns = [...document.querySelectorAll("[data-speed]")];
-function syncSettings(){
-  $("mode-auto").setAttribute("aria-pressed", mode==="auto");
-  $("mode-manual").setAttribute("aria-pressed", mode==="manual");
-  speedBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.speed===speed));
-  $("sound").setAttribute("aria-pressed", soundOn);
-  $("sound").textContent = soundOn ? "効果音 オン" : "効果音 オフ";
+function rebuildActive(){
+  ACTIVE = DATA.map((_,i)=>i).filter(i => !OFF.has(DATA[i].w));
+  for (let i = ACTIVE.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [ACTIVE[i],ACTIVE[j]] = [ACTIVE[j],ACTIVE[i]]; }   // 毎回ならびをシャッフル
+  rows.forEach(r => r.idx = -1);
+  pos = Math.floor(Math.random() * Math.max(ACTIVE.length,1));
+  lastBase = null; dirty = false;
+  win.classList.remove("landed"); rows.forEach(r => r.el.classList.remove("hit"));
+  render(); updateCount(); updateButton();
 }
-$("mode-auto").onclick = () => { mode="auto"; store.set("kz-mode",mode); syncSettings(); };
-$("mode-manual").onclick = () => { mode="manual"; store.set("kz-mode",mode); syncSettings(); };
-speedBtns.forEach(b => b.onclick = () => { speed=b.dataset.speed; store.set("kz-speed2",speed); syncSettings(); });
-$("sound").onclick = () => { soundOn=!soundOn; store.set("kz-sound",soundOn); syncSettings(); };
-$("full").onclick = () => {
-  const d = document;
-  try{
-    if (d.fullscreenElement) d.exitFullscreen().catch(()=>{});
-    else d.documentElement.requestFullscreen().catch(()=>{});
-  }catch(e){}
+function updateCount(){
+  const n = DATA.length - DATA.filter(d => OFF.has(d.w)).length;
+  $("count").textContent = n; $("total").textContent = DATA.length;
+  $("list-count").textContent = `スロットに出る語：${n} ／ ${DATA.length}`;
+}
+
+/* ---------- 動きの設定 ---------- */
+const LAPS = {slow:.6, normal:1, fast:1.7};         // スロット：止まるまでに回る周の数
+const FLASH = {slow:.42, normal:.24, fast:.12};      // フラッシュ：切りかわる間かく（秒）
+const DUR = {
+  short:  {spin:[0.8,1.3], brake:.5,  flash:[0.7,1.1], flips:2},
+  normal: {spin:[2.4,3.6], brake:1.0, flash:[1.8,2.6], flips:4},
+  long:   {spin:[4.5,6.5], brake:1.5, flash:[3.6,4.6], flips:6}
 };
+const rnd = a => a[0] + Math.random()*(a[1]-a[0]);
 
 /* ---------- sound ---------- */
 let actx = null;
 function audio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
 function beep(freq, dur, vol, type="square", when=0){
-  const c = actx; if(!c || !soundOn) return;
+  const c = actx; if(!c || !S.sound) return;
   const t = c.currentTime + when, o = c.createOscillator(), g = c.createGain();
   o.type = type; o.frequency.value = freq;
   g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
   o.connect(g).connect(c.destination); o.start(t); o.stop(t+dur+0.02);
 }
-function tick(){ if(phase==="spin"||phase==="brake") beep(1400, .03, .05); }
+let lastTick = 0;
+function tick(){ const t = performance.now(); if((phase==="spin"||phase==="brake") && t - lastTick > 45){ lastTick = t; beep(1400, .03, .05); } }
 function chime(){ beep(784,.25,.12,"triangle",0); beep(1047,.25,.12,"triangle",.14); beep(1319,.5,.12,"triangle",.28); }
 
 /* ---------- motion ---------- */
-let phase = "idle", v = 0, vmax = 0, t0 = 0, spinTime = 0, autoStopAt = 0;
-let brake = null, last = 0;
+let phase = "idle", v = 0, vmax = 0, spinTime = 0, autoStopAt = 0, flashT = 0;
+let brake = null, last = 0, lastWord = store.get("kz-last", null);
 const go = $("go");
 
 function recent(){ return store.get("kz-recent", []); }
-function pickTarget(){
-  const avoid = new Set(recent().slice(-Math.min(15, N-5)));
-  const lw = store.get("kz-last", null); if (lw) avoid.add(lw);
-  const pool = DATA.map((_,i)=>i).filter(i => !avoid.has(DATA[i].w));
-  const list = pool.length ? pool : DATA.map((_,i)=>i);
-  return list[Math.floor(Math.random()*list.length)];
+function avoidSet(){                        // 最近出た語と、前回の語
+  const L = ACTIVE.length;
+  const avoid = new Set(recent().slice(-Math.min(15, Math.floor(L/2))));
+  if (lastWord) avoid.add(lastWord);
+  return avoid;
+}
+function pickTarget(){                       // ACTIVE の中の位置を返す
+  const L = ACTIVE.length; if (L <= 1) return 0;
+  const avoid = avoidSet();
+  let pool = ACTIVE.map((_,k)=>k).filter(k => !avoid.has(DATA[ACTIVE[k]].w));
+  if (!pool.length) pool = ACTIVE.map((_,k)=>k).filter(k => DATA[ACTIVE[k]].w !== lastWord);
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function lockUI(b){ ["mode-auto","mode-manual","open-set","open-list"].forEach(id => $(id).disabled = b); }
+function popCenter(){ const el = rows[2].el; el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+function flashNext(){
+  const L = ACTIVE.length; if (L < 2) return;
+  const cur = modA(Math.round(pos)); let k;
+  do { k = Math.floor(Math.random()*L); } while (k === cur);
+  pos = k; popCenter();
 }
 function startSpin(){
+  if (dirty) rebuildActive();
+  if (!ACTIVE.length){ openDialog("list"); return; }
   audio(); if (actx && actx.state==="suspended") actx.resume();
   win.classList.remove("landed");
   rows.forEach(r => r.el.classList.remove("hit"));
-  vmax = SPEED[speed]; v = 0; spinTime = 0;
-  autoStopAt = 3.2 + Math.random()*2.6;
-  phase = "spin";
-  modeBtns.concat(speedBtns).forEach(b => b.disabled = true);
-  updateButton();
+  win.classList.toggle("flash", S.style==="flash");
+  if (S.style==="flash") pos = modA(Math.round(pos));
+  v = 0; spinTime = 0; flashT = 0;
+  const D = DUR[S.dur];
+  autoStopAt = rnd(S.style==="flash" ? D.flash : D.spin);
+  // 止まるまでに、えらんだ周の数だけ回る速さにする
+  const plan = (S.mode==="auto" ? autoStopAt : (D.spin[0]+D.spin[1])/2) - 0.3 + 1.15*D.brake;
+  vmax = Math.min(45, Math.max(4, ACTIVE.length * LAPS[S.speed] / plan));
+  phase = "spin"; lockUI(true); updateButton();
   last = performance.now();
   requestAnimationFrame(loop);
 }
 function beginBrake(target){
-  const v0 = Math.max(v, vmax*0.7);
-  const minD = Math.max(v0 * 1.15, 1.5);
-  let d;
-  if (target === undefined){                                           // ストップ：見えている流れのまま、自然にとまる
-    d = Math.ceil(pos + minD) - pos;
-    if (DATA[mod(pos + d)].w === store.get("kz-last", null)) d += 1;   // 前回と同じ語にはとまらない
+  const L = ACTIVE.length;
+  if (S.style === "flash"){
+    if (target === undefined) target = pickTarget();
+    const steps = []; let t = FLASH[S.speed];
+    for (let i=0;i<DUR[S.dur].flips;i++){ t *= 1.45; steps.push(t); }
+    brake = {steps, k:0, acc:0, target};
+    phase = "brake"; updateButton(); return;
   }
-  else { d = mod(target - Math.ceil(pos)) + (Math.ceil(pos) - pos); while (d < minD) d += N; }
-  const T = 2*d / v0;
-  brake = {start:pos, v0, T, t:0, end:pos+d};
-  phase = "brake";
-  updateButton();
+  const v0 = Math.max(v, vmax*0.7);
+  const minD = Math.max(v0 * DUR[S.dur].brake * 1.15, 1.2);
+  // 見えている流れのまま、近くで止まる（じどうのときは最近出た語、ストップのときは前回の語をとばす）
+  const wordAt = dd => DATA[ACTIVE[modA(Math.round(pos + dd))]].w;
+  const d0 = Math.ceil(pos + minD) - pos;
+  let d = d0;
+  if (L > 1){
+    let avoid = S.mode === "auto" ? avoidSet() : new Set([lastWord]);
+    let guard = 0;
+    while (avoid.has(wordAt(d)) && guard < L){ d += 1; guard++; }
+    if (guard >= L){ d = d0; if (wordAt(d) === lastWord) d += 1; }
+  }
+  brake = {start:pos, v0, T:2*d/v0, t:0, end:pos+d};
+  phase = "brake"; updateButton();
 }
 function loop(now){
   const dt = Math.min(0.05, (now - last)/1000); last = now;
-  if (phase === "spin"){
+  if (S.style === "flash"){
+    if (phase === "spin"){
+      spinTime += dt; flashT += dt;
+      if (flashT >= FLASH[S.speed]){ flashT = 0; flashNext(); }
+      if (S.mode === "auto" && spinTime >= autoStopAt) beginBrake(pickTarget());
+    } else if (phase === "brake"){
+      brake.acc += dt;
+      if (brake.acc >= brake.steps[brake.k]){
+        brake.acc = 0; brake.k++;
+        if (brake.k >= brake.steps.length){ pos = brake.target; popCenter(); render(); finish(); return; }
+        flashNext();
+      }
+    }
+  } else if (phase === "spin"){
     spinTime += dt;
     v = Math.min(vmax, v + vmax*dt/0.6);
     pos += v*dt;
-    if (mode === "auto" && spinTime >= autoStopAt) beginBrake(pickTarget());
+    if (S.mode === "auto" && spinTime >= autoStopAt) beginBrake(pickTarget());
   } else if (phase === "brake"){
     brake.t += dt;
     if (brake.t >= brake.T){ pos = Math.round(brake.end); render(); finish(); return; }
     const t = brake.t;
     pos = brake.start + brake.v0*t - brake.v0/(2*brake.T)*t*t;
   }
+  const sp = phase === "spin" ? v : phase === "brake" && brake.v0 ? brake.v0*(1 - brake.t/brake.T) : 0;
+  win.classList.toggle("blur", S.style !== "flash" && sp > 14);
   render();
   if (phase === "spin" || phase === "brake") requestAnimationFrame(loop);
 }
 function finish(){
-  phase = "done";
-  const idx = mod(pos);
-  rows.find(r => r.i===0).el.classList.add("hit");
+  phase = "done"; win.classList.remove("blur");
+  pos = modA(Math.round(pos)); lastBase = Math.floor(pos);
+  const idx = ACTIVE[pos];
+  rows[2].el.classList.add("hit");
   win.classList.add("landed");
-  modeBtns.concat(speedBtns).forEach(b => b.disabled = false);
-  const rc = recent().filter(w => w !== DATA[idx].w); rc.push(DATA[idx].w); store.set("kz-recent", rc.slice(-20));
-  store.set("kz-last", DATA[idx].w);
+  lockUI(false);
+  const w = DATA[idx].w;
+  const rc = recent().filter(x => x !== w); rc.push(w); store.set("kz-recent", rc.slice(-20));
+  lastWord = w; store.set("kz-last", w);
   showResult(idx);
   chime();
   updateButton();
 }
 function updateButton(){
   go.classList.remove("stop"); go.disabled = false;
-  if (phase === "spin" && mode === "manual"){ go.textContent = "ストップ"; go.classList.add("stop"); }
-  else if (phase === "spin" || phase === "brake"){ go.textContent = mode==="manual" ? "とまります…" : "まわっています…"; go.disabled = true; }
+  if (!ACTIVE.length && !dirty){ go.textContent = "語をえらぶ"; return; }
+  if (phase === "spin" && S.mode === "manual"){ go.textContent = "ストップ"; go.classList.add("stop"); }
+  else if (phase === "spin" || phase === "brake"){ go.textContent = S.mode==="manual" ? "とまります…" : "まわっています…"; go.disabled = true; }
   else if (phase === "done"){ go.textContent = "もう一回"; }
   else go.textContent = "スタート";
 }
 function press(){
   if (phase === "idle" || phase === "done") startSpin();
-  else if (phase === "spin" && mode === "manual") beginBrake();
+  else if (phase === "spin" && S.mode === "manual") beginBrake();
 }
 go.onclick = press;
 document.addEventListener("keydown", e => {
-  if ((e.code === "Space" || e.code === "Enter") && !(e.target instanceof HTMLButtonElement)){
-    e.preventDefault(); press();
+  if (!$("dlg").hidden){ if (e.key === "Escape") closeDialog(); return; }
+  if ((e.code === "Space" || e.code === "Enter") && !(e.target instanceof HTMLButtonElement) && !(e.target instanceof HTMLInputElement)){
+    e.preventDefault();
+    if (phase === "done" && !revealed) reveal(); else press();
   }
 });
 
 /* ---------- result ---------- */
-let current = null;
+let current = null, revealed = true;
 function showResult(idx){
   const d = DATA[idx]; current = d;
   $("waiting").hidden = true;
@@ -834,21 +1048,133 @@ function showResult(idx){
   $("a-videos").innerHTML = vids.map((id,k)=>`<a class="tool video" href="https://youtu.be/${id}" target="_blank" rel="noopener"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4l-7 4z"/></svg>${vids.length>1?"動画"+"①②③④"[k]:"動画を見る"}</a>`).join("");
   $("a-meaning").textContent = d.m;
   $("a-tip").textContent = d.h;
+  $("a-ex").textContent = d.x;
+  $("a-en").textContent = d.e;
+  applyShow();
   $("a-story").textContent = "もとになったお話：" + d.s;
   $("a-story").hidden = true; $("t-story").setAttribute("aria-pressed","false");
+  syncMemo();
+  revealed = S.reveal !== "tap";
+  $("a-body").hidden = !revealed; $("a-reveal").hidden = revealed;
   const res = $("result"), seal = $("seal");
-  res.classList.remove("reveal"); seal.classList.remove("stamp");
+  res.classList.remove("reveal","open"); seal.classList.remove("stamp");
   void res.offsetWidth;
-  res.classList.add("reveal"); seal.classList.add("stamp");
+  res.classList.add("reveal"); if (revealed) res.classList.add("open");
+  seal.classList.add("stamp");
+  res.scrollTop = 0;
 }
+function applyShow(){
+  if (!current) return;
+  $("p-tip").hidden = !S.showTip;
+  $("p-ex").hidden = !S.showEx || !current.x;
+  $("p-en").hidden = !S.showEn || !current.e;
+}
+function reveal(){
+  revealed = true;
+  $("a-body").hidden = false; $("a-reveal").hidden = true;
+  const res = $("result"); res.classList.remove("open"); void res.offsetWidth; res.classList.add("open");
+}
+$("t-reveal").onclick = reveal;
 $("t-story").onclick = () => {
   const s = $("a-story"); s.hidden = !s.hidden;
   $("t-story").setAttribute("aria-pressed", String(!s.hidden));
 };
+function syncMemo(){
+  if (!current) return;
+  const off = OFF.has(current.w);
+  $("t-memo").setAttribute("aria-pressed", String(off));
+  $("t-memo").textContent = off ? "✓ おぼえた（スロットに出しません）" : "おぼえた！";
+}
+$("t-memo").onclick = () => {
+  if (!current) return;
+  if (OFF.has(current.w)) OFF.delete(current.w); else OFF.add(current.w);
+  saveOff(); dirty = true; syncMemo(); updateCount(); syncList();
+};
+
+/* ---------- 設定・一覧のまど ---------- */
+function syncSettings(){
+  document.querySelectorAll(".seg[data-key]").forEach(g => {
+    const val = String(S[g.dataset.key]);
+    g.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === val)));
+  });
+  $("mode-auto").setAttribute("aria-pressed", S.mode==="auto");
+  $("mode-manual").setAttribute("aria-pressed", S.mode==="manual");
+  $("row-speed-note").textContent = S.style==="flash" ? "フラッシュでは、切りかわる速さになります" : "止まるまでに、ゆっくり＝約半周／ふつう＝約1周／はやい＝約2周 回ります";
+}
+document.querySelectorAll(".seg[data-key] button").forEach(b => b.onclick = () => {
+  const key = b.parentElement.dataset.key, raw = b.dataset.v;
+  S[key] = raw === "true" ? true : raw === "false" ? false : raw;
+  saveS(); syncSettings(); applyShow();
+  if (key === "style" && phase !== "spin" && phase !== "brake"){
+    win.classList.toggle("flash", S.style==="flash");
+    if (S.style==="flash"){ pos = modA(Math.round(pos)); render(); }
+  }
+  if (key === "reveal" && S.reveal === "now" && !revealed && phase === "done") reveal();
+});
+$("mode-auto").onclick = () => { S.mode="auto"; saveS(); syncSettings(); };
+$("mode-manual").onclick = () => { S.mode="manual"; saveS(); syncSettings(); };
+$("reset-set").onclick = () => { const m = S.mode; S = Object.assign({}, DEF, {mode:m}); saveS(); syncSettings(); applyShow(); };
+
+function buildList(){
+  $("wlist").innerHTML = DATA.map((d,i) => `
+    <label class="witem" for="w-${i}">
+      <input type="checkbox" id="w-${i}" data-w="${d.w}">
+      <span class="wtext"><span class="wr">${d.r}</span><span class="ww">${d.w}</span></span>
+      ${VIDEOS[d.w] ? '<span class="vbadge">動画</span>' : ''}
+    </label>`).join("");
+  $("wlist").querySelectorAll("input").forEach(cb => cb.onchange = () => {
+    if (cb.checked) OFF.delete(cb.dataset.w); else OFF.add(cb.dataset.w);
+    saveOff(); dirty = true; updateCount(); syncMemo();
+  });
+  syncList();
+}
+function syncList(){ $("wlist").querySelectorAll("input").forEach(cb => cb.checked = !OFF.has(cb.dataset.w)); }
+document.querySelectorAll("[data-all]").forEach(b => b.onclick = () => {
+  const k = b.dataset.all;
+  OFF = new Set(k === "on" ? [] : k === "off" ? DATA.map(d=>d.w) : DATA.filter(d=>!VIDEOS[d.w]).map(d=>d.w));
+  saveOff(); dirty = true; syncList(); updateCount(); syncMemo();
+});
+
+let lastFocus = null;
+function openDialog(tab){
+  lastFocus = document.activeElement;
+  showTab(tab); $("dlg").hidden = false;
+  $(tab === "list" ? "tab-list" : "tab-set").focus();
+}
+function closeDialog(){
+  $("dlg").hidden = true;
+  if (dirty && phase !== "spin" && phase !== "brake"){
+    const keep = phase === "done";
+    rebuildActive();
+    if (keep && current && ACTIVE.length){ const k = ACTIVE.indexOf(DATA.indexOf(current)); if (k >= 0){ pos = k; lastBase = null; render(); } }
+  }
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+function showTab(t){
+  $("pane-set").hidden = t === "list"; $("pane-list").hidden = t !== "list";
+  $("tab-set").setAttribute("aria-selected", String(t !== "list"));
+  $("tab-list").setAttribute("aria-selected", String(t === "list"));
+}
+$("open-set").onclick = () => openDialog("set");
+$("open-list").onclick = () => openDialog("list");
+$("tab-set").onclick = () => showTab("set");
+$("tab-list").onclick = () => showTab("list");
+$("dlg-close").onclick = closeDialog;
+$("dlg").addEventListener("click", e => { if (e.target === $("dlg")) closeDialog(); });
+
+$("full").onclick = () => {
+  const d = document;
+  try{
+    if (d.fullscreenElement) d.exitFullscreen().catch(()=>{});
+    else d.documentElement.requestFullscreen().catch(()=>{});
+  }catch(e){}
+};
 
 /* ---------- boot ---------- */
+buildList();
 syncSettings();
-measure(); render();
+win.classList.toggle("flash", S.style==="flash");
+measure(); rebuildActive();
 window.addEventListener("resize", () => { measure(); render(); });
 if (document.fonts) document.fonts.ready.then(() => { measure(); render(); });
 </script>
